@@ -128,6 +128,18 @@ Palette:
 
 ## Privacy Checklist
 
+Support URL:
+
+```text
+https://imentos.github.io/LandlordLedger/support.html
+```
+
+Privacy Policy URL:
+
+```text
+https://imentos.github.io/LandlordLedger/privacy.html
+```
+
 Likely privacy stance:
 
 - No account creation
@@ -200,4 +212,3 @@ Recommended first App Store release: free, no paywall, focus on trust and workfl
 6. Internal TestFlight QA.
 7. Create App Store listing metadata.
 8. Submit for review.
-

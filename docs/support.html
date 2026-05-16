@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Landlord Ledger Support</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f8fb;
+      --fg: #172033;
+      --muted: #647084;
+      --card: #ffffff;
+      --accent: #1663d7;
+      --border: #dce2ea;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1420;
+        --fg: #f4f7fb;
+        --muted: #a8b2c3;
+        --card: #171f2e;
+        --accent: #6ea8ff;
+        --border: #2a3446;
+      }
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.55;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 56px 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 12px 36px rgba(18, 31, 53, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      line-height: 1.05;
+    }
+
+    h2 {
+      margin-top: 32px;
+      font-size: 1.2rem;
+    }
+
+    p, li {
+      color: var(--muted);
+    }
+
+    a {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    ul {
+      padding-left: 1.2rem;
+    }
+
+    .meta {
+      margin-top: 28px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>Landlord Ledger Support</h1>
+      <p>Landlord Ledger helps small rental property owners organize income, expenses, tenants, and tax-year summaries from local CSV imports and manual entries.</p>
+
+      <h2>Common Questions</h2>
+      <ul>
+        <li><strong>How do I import transactions?</strong> Export a CSV file from your bank, then open Landlord Ledger and choose Import &gt; Choose Chase CSV. You can also paste CSV text.</li>
+        <li><strong>Does the app connect to my bank?</strong> No. Landlord Ledger does not require a bank login. You choose the CSV file to import.</li>
+        <li><strong>Can I add transactions manually?</strong> Yes. Tap the plus button on the Import screen to add cash payments, off-bank expenses, or adjustments.</li>
+        <li><strong>Can I fix a wrong match?</strong> Yes. Move a transaction back to Inbox from the property detail screen, then review and assign it again.</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>For support, feature requests, or bug reports, email <a href="mailto:ray@imentos.com">ray@imentos.com</a>.</p>
+
+      <h2>Privacy</h2>
+      <p>Read the <a href="privacy.html">Landlord Ledger Privacy Policy</a>.</p>
+
+      <p class="meta">Last updated: May 15, 2026</p>
+    </section>
+  </main>
+</body>
+</html>
