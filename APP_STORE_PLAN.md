@@ -6,7 +6,7 @@
 
 **One-line promise:** Simple rental income and expense tracking for small landlords.
 
-**Primary audience:** Small rental-property owners who currently use spreadsheets, Stessa, bank CSV exports, or manual notes to prepare Schedule E tax reports.
+**Primary audience:** Small rental-property owners using iPhone who currently use spreadsheets, Stessa, bank CSV exports, or manual notes to prepare Schedule E tax reports.
 
 **Core differentiator:** Private, on-device categorization from bank CSV imports. No bank login required.
 
@@ -78,7 +78,7 @@ Important: Landlord Ledger is an organizational tool and does not provide tax, l
 
 ## Screenshot Plan
 
-Apple allows 1-10 screenshots per device class. Start with 6 portrait screenshots for the highest required iPhone size and let App Store Connect scale where acceptable.
+This is an iPhone-only app. Apple allows 1-10 screenshots per device class. Start with 6 portrait screenshots for the highest required iPhone size and let App Store Connect scale where acceptable.
 
 Recommended screenshots:
 
@@ -198,6 +198,7 @@ Recommended first App Store release: free, no paywall, focus on trust and workfl
 - Add privacy policy link.
 - Confirm minimum iOS version.
 - Confirm app name spelling: current project uses `LandloardLedger`; app-facing name should be `Landlord Ledger`.
+- Confirm App Store device support is iPhone only.
 - Add crash-safe handling for malformed CSV files.
 - Add a short onboarding empty state: add property, import CSV, review Inbox, export.
 - Run one full clean install test on a device.
