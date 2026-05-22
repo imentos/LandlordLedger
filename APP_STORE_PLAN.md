@@ -2,7 +2,9 @@
 
 ## Positioning
 
-**Working app name:** Landlord Ledger
+**Working app name:** LandLedger
+
+**Naming status:** `Landlord Ledger` is not available as the App Store listing name, so use a unique metadata name and keep the app concept/search terms focused on landlords, rental property, CSV imports, and tax summaries.
 
 **One-line promise:** Simple rental income and expense tracking for small landlords.
 
@@ -14,25 +16,41 @@
 
 ### Title Options
 
-1. Landlord Ledger
-2. Rental Ledger
-3. Landlord Ledger: Rent Tracker
+App Store Connect rejected `Landlord Ledger` because the name is already in use. These alternatives keep the search intent but are more specific. Check each candidate in App Store Connect before final upload; only App Store Connect can confirm name availability.
 
-Recommended: **Landlord Ledger**
+1. LandLedger (10)
+2. LandLedger Rent (15)
+3. LandLedger CSV (14)
+4. Property Rent Ledger (20)
+5. Rental Tax Ledger (17)
+6. Small Landlord Ledger (21)
+7. Rent Ledger Organizer (21)
+8. Rental Property Books (21)
+9. Landlord CSV Tracker (20)
+10. Property Income Ledger (22)
+11. Rent Expense Ledger (19)
+12. Schedule E Ledger (17)
+
+Recommended: **LandLedger**
+
+Rationale: `LandLedger` is short, brandable, and pairs well with the existing `LandMile` naming pattern. It is less literal than `Landlord Ledger`, so the subtitle and keywords should carry the functional search terms: landlord, rent, property, tax, CSV, and expense.
+
+Fallback if unavailable: **LandLedger Rent**, then **LandLedger CSV**, then **Property Rent Ledger**.
 
 ### Subtitle Options
 
-Apple subtitle limit is 30 characters.
+Apple subtitle limit is 30 characters. Because the recommended title no longer contains `Landlord`, put that search term in the subtitle.
 
-1. `Rental Income & Expenses` (26)
-2. `Rent & Expense Tracker` (22)
-3. `Property Tax Organizer` (22)
+1. `Landlord Rent Tracker` (21)
+2. `Property Tax Organizer` (22)
+3. `Income & Expense Tracker` (24)
+4. `Schedule E Organizer` (20)
 
-Recommended: **Rental Income & Expenses**
+Recommended: **Landlord Rent Tracker**
 
 ### Keyword Field
 
-App Store Connect keyword field is limited, so avoid words already in the title/subtitle when possible.
+App Store Connect keyword field is limited, so avoid words already in the title/subtitle when possible. With `LandLedger` + `Landlord Rent Tracker`, avoid repeating `land`, `ledger`, `landlord`, `rent`, and `tracker`. Keep `csv` because the title no longer includes it.
 
 Recommended keyword string:
 
@@ -46,17 +64,27 @@ Shorter no-space variant if App Store Connect rejects spaces:
 property,tax,schedulee,expense,receipt,tenant,zelle,csv,bookkeeping,realestate
 ```
 
+### Name Implementation
+
+Recommended path:
+
+1. Try `LandLedger` as the App Store name.
+2. If accepted, update the app display name from `Landlord Ledger` to `LandLedger` before archive so the installed app and listing match.
+3. If unavailable, try `LandLedger Rent`, then `LandLedger CSV`, then `Property Rent Ledger`.
+4. Keep the bundle identifier as-is for now unless App Store Connect requires a new app record. Bundle ID uniqueness is separate from App Store listing-name uniqueness.
+5. Do not rename the Xcode project/target yet; that internal cleanup can wait until after the listing is accepted.
+
 ### Promotional Text
 
 Track rental income and expenses from Chase CSV imports, review uncertain matches, and export property-ready tax summaries without connecting your bank account.
 
 ### Short Description
 
-Landlord Ledger helps small landlords organize rental property income and expenses from bank CSV files. Import transactions, review uncertain matches, link rent payments to tenants and properties, and export tax-ready summaries for your records.
+LandLedger helps small landlords organize rental property income and expenses from bank CSV files. Import transactions, review uncertain matches, link rent payments to tenants and properties, and export tax-ready summaries for your records.
 
 ### Full Description Draft
 
-Landlord Ledger is a simple rental bookkeeping app for small property owners.
+LandLedger is a simple rental bookkeeping app for small property owners.
 
 Import bank CSV transactions, categorize income and expenses, review uncertain items in an inbox, and keep each property’s ledger organized for tax season.
 
@@ -72,9 +100,9 @@ Features:
 - Export tax-year summaries for your records
 - Works on device without connecting your bank account
 
-Landlord Ledger is designed for owners who want a practical alternative to spreadsheets or expensive rental bookkeeping tools.
+LandLedger is designed for owners who want a practical alternative to spreadsheets or expensive rental bookkeeping tools.
 
-Important: Landlord Ledger is an organizational tool and does not provide tax, legal, or accounting advice. Please consult a qualified professional for tax filing decisions.
+Important: LandLedger is an organizational tool and does not provide tax, legal, or accounting advice. Please consult a qualified professional for tax filing decisions.
 
 ## Screenshot Plan
 
@@ -161,7 +189,7 @@ Before submission:
 Suggested review note:
 
 ```text
-Landlord Ledger is a local rental bookkeeping app. It does not require login or a bank connection. To test, add a sample property, use the Import tab to add a manual transaction, or import a CSV with columns similar to: Details, Posting Date, Description, Amount, Type, Balance.
+LandLedger is a local rental bookkeeping app. It does not require login or a bank connection. To test, add a sample property, use the Import tab to add a manual transaction, or import a CSV with columns similar to: Details, Posting Date, Description, Amount, Type, Balance.
 ```
 
 ## TestFlight Checklist
@@ -197,7 +225,7 @@ Recommended first App Store release: free, no paywall, focus on trust and workfl
 - Add launch screen polish if needed.
 - Add privacy policy link.
 - Confirm minimum iOS version.
-- Confirm app name spelling: current project uses `LandloardLedger`; app-facing name should be `Landlord Ledger`.
+- Confirm app name spelling: current project uses `LandloardLedger`; App Store listing name should be `LandLedger`; installed display name is set to `LandLedger` for Debug and Release.
 - Confirm App Store device support is iPhone only.
 - Add crash-safe handling for malformed CSV files.
 - Add a short onboarding empty state: add property, import CSV, review Inbox, export.
