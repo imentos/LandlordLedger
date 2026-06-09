@@ -168,6 +168,12 @@ Privacy Policy URL:
 https://imentos.github.io/LandlordLedger/privacy.html
 ```
 
+Terms of Use URL:
+
+```text
+https://imentos.github.io/LandlordLedger/terms.html
+```
+
 Likely privacy stance:
 
 - No account creation
@@ -203,7 +209,7 @@ LandLedger is a local rental bookkeeping app. It does not require login or a ban
 7. Test duplicate import skip.
 8. Test Inbox review and learned matching.
 9. Test property transaction move back to Inbox.
-10. Test export/share flow.
+10. Test export paywall, purchase restore, and unlocked export/share flow.
 11. Archive in Xcode.
 12. Upload to App Store Connect.
 13. Add internal TestFlight testers.
@@ -213,10 +219,20 @@ LandLedger is a local rental bookkeeping app. It does not require login or a ban
 
 Start simple:
 
-- Free app while validating with your wife and a small user group.
-- Later: one-time purchase or yearly subscription for export/reporting.
+- Free to add properties, import/paste CSV text, review Inbox, and organize transactions.
+- Gate PDF tax export behind StoreKit at the moment the user taps export.
+- Offer `LandLedger Pro` as a yearly subscription using product ID `landledger.pro.annual`.
+- Offer `Tax Export Pass` as a one-time non-consumable using product ID `landledger.tax_export_pass`.
 
-Recommended first App Store release: free, no paywall, focus on trust and workflow.
+Recommended first App Store release: free workflow with paid tax export. Start with **$29.99/year** for Pro and **$9.99 one-time** for Tax Export Pass.
+
+Subscription disclosure checklist for paywall and review:
+
+- Clearly show what LandLedger Pro unlocks before asking for purchase.
+- Show price and billing period, for example `$29.99/year`.
+- State that the annual subscription auto-renews unless canceled.
+- Include Restore Purchases.
+- Provide Terms of Use and Privacy Policy URLs in App Store Connect.
 
 ## Pre-Submission Engineering Tasks
 

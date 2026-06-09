@@ -1,0 +1,92 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "D4F9A821",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "9D5F2C10",
+      "localizations" : [
+        {
+          "description" : "Unlock one-time tax-year PDF exports for your reviewed rental property transactions.",
+          "displayName" : "Tax Export Pass",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "landledger.tax_export_pass",
+      "referenceName" : "Tax Export Pass",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "B7E63D42",
+      "localizations" : [
+
+      ],
+      "name" : "LandLedger Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "29.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "7AC31E84",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Unlock unlimited tax exports and Pro reporting features for LandLedger.",
+              "displayName" : "LandLedger Pro Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "landledger.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "LandLedger Pro Yearly",
+          "subscriptionGroupID" : "B7E63D42",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 5,
+    "minor" : 0
+  }
+}

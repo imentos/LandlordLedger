@@ -208,11 +208,10 @@ Cascade delete: deleting a Property auto-deletes all its Transactions.
 
 ## Status (as of Apr 15, 2026)
 
-All core screens implemented and compiling. App entry point configured with SwiftData. Basic end-to-end flow functional: import CSV → local rules categorize → inbox review → PDF export.
+All core screens implemented and compiling. App entry point configured with SwiftData. Basic end-to-end flow functional: import CSV → local rules categorize → inbox review → paid export unlock → PDF export.
 
 **Not yet done:**
 - App Store submission materials (screenshots, description, privacy policy)
-- Paywall / monetization (subscription or one-time purchase)
 - Onboarding flow for first-time users
 - Error handling polish (network failures, malformed CSVs)
 - App icon
