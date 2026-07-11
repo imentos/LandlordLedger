@@ -99,7 +99,7 @@ struct ExportView: View {
                             .font(.caption)
                             .foregroundStyle(.orange)
                     } else if !hasExportAccess {
-                        Text("Export is included with LandLedger Pro or a one-time Tax Export Pass.")
+                        Text("Export is included with RentalKeeper Pro or a one-time Tax Export Pass.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -120,7 +120,7 @@ struct ExportView: View {
             }
             .sheet(isPresented: $showShare) {
                 if let data = pdfData {
-                    ShareSheetView(data: data, filename: "LandLedger_\(selectedYear).pdf")
+                    ShareSheetView(data: data, filename: "RentalKeeper_\(selectedYear).pdf")
                 }
             }
         }
@@ -203,13 +203,13 @@ struct ExportView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .disabled(isPurchasing)
 
-                    Text("LandLedger is an organizational tool and does not provide tax, legal, or accounting advice.")
+                    Text("RentalKeeper is an organizational tool and does not provide tax, legal, or accounting advice.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .padding()
             }
-            .navigationTitle("LandLedger")
+            .navigationTitle("RentalKeeper")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -223,7 +223,7 @@ struct ExportView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Purchase options are not available yet.")
                 .font(.headline)
-            Text("Create the LandLedger Pro yearly subscription and Tax Export Pass products in App Store Connect, then try again.")
+            Text("Please check your connection and try again. If this continues, contact support.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }

@@ -50,7 +50,7 @@
       "localizations" : [
 
       ],
-      "name" : "LandLedger Pro",
+      "name" : "RentalKeeper Pro",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -68,14 +68,14 @@
           ],
           "localizations" : [
             {
-              "description" : "Unlock unlimited tax exports and Pro reporting features for LandLedger.",
-              "displayName" : "LandLedger Pro Yearly",
+              "description" : "Unlock unlimited tax exports and Pro reporting features for RentalKeeper.",
+              "displayName" : "RentalKeeper Pro Yearly",
               "locale" : "en_US"
             }
           ],
           "productID" : "landledger.pro.annual",
           "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "LandLedger Pro Yearly",
+          "referenceName" : "RentalKeeper Pro Yearly",
           "subscriptionGroupID" : "B7E63D42",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
