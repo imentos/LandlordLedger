@@ -14,6 +14,7 @@ struct ExportView: View {
     @Query(sort: \Property.name) private var properties: [Property]
 
     @State private var selectedYear = Calendar.current.component(.year, from: Date())
+    @State private var selectedOwnerName = ""
     @State private var pdfData: Data?
     @State private var showShare = false
     @State private var isGenerating = false
@@ -39,6 +40,21 @@ struct ExportView: View {
         }
     }
 
+    private var ownerNames: [String] {
+        Array(Set(properties.map { $0.ownerName.trimmingCharacters(in: .whitespacesAndNewlines) }))
+            .filter { !$0.isEmpty }
+            .sorted()
+    }
+
+    private var exportProperties: [Property] {
+        guard !selectedOwnerName.isEmpty else { return properties }
+        return properties.filter { $0.ownerName == selectedOwnerName }
+    }
+
+    private var selectedOwnerLabel: String {
+        selectedOwnerName.isEmpty ? "All Owners" : selectedOwnerName
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 32) {
@@ -58,21 +74,39 @@ struct ExportView: View {
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
 
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Tax Year")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(.secondary)
-                        Picker("Tax Year", selection: $selectedYear) {
-                            ForEach(availableYears, id: \.self) { year in
-                                Text(String(year)).tag(year)
+                    VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Tax Year")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                            Picker("Tax Year", selection: $selectedYear) {
+                                ForEach(availableYears, id: \.self) { year in
+                                    Text(String(year)).tag(year)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .labelsHidden()
+                        }
+
+                        if !ownerNames.isEmpty {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Owner / Portfolio")
+                                    .font(.caption.weight(.medium))
+                                    .foregroundStyle(.secondary)
+                                Picker("Owner / Portfolio", selection: $selectedOwnerName) {
+                                    Text("All Owners").tag("")
+                                    ForEach(ownerNames, id: \.self) { ownerName in
+                                        Text(ownerName).tag(ownerName)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .labelsHidden()
                             }
                         }
-                        .pickerStyle(.menu)
-                        .labelsHidden()
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                    if !properties.isEmpty {
+                    if !exportProperties.isEmpty {
                         reportPreview
                     }
 
@@ -92,7 +126,7 @@ struct ExportView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
-                    .disabled(isGenerating || properties.isEmpty)
+                    .disabled(isGenerating || exportProperties.isEmpty)
 
                     if properties.isEmpty {
                         Text("Add at least one property in Settings first.")
@@ -120,7 +154,7 @@ struct ExportView: View {
             }
             .sheet(isPresented: $showShare) {
                 if let data = pdfData {
-                    ShareSheetView(data: data, filename: "RentalKeeper_\(selectedYear).pdf")
+                    ShareSheetView(data: data, filename: exportFilename)
                 }
             }
         }
@@ -135,7 +169,11 @@ struct ExportView: View {
             Text("What's included")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
-            ForEach(properties) { property in
+            Text(selectedOwnerLabel)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            ForEach(exportProperties) { property in
                 let count = transactionCount(for: property, year: selectedYear)
                 HStack {
                     Text(property.name)
@@ -362,16 +400,28 @@ struct ExportView: View {
         }
     }
 
+    private var exportFilename: String {
+        let ownerPart = selectedOwnerName.isEmpty ? "All_Owners" : filenameSafe(selectedOwnerName)
+        return "RentalKeeper_\(ownerPart)_\(selectedYear).pdf"
+    }
+
     private func generatePDF() {
         isGenerating = true
+        let propertiesToExport = exportProperties
         DispatchQueue.global(qos: .userInitiated).async {
-            let data = PDFExporter.buildPDF(properties: properties, year: selectedYear)
+            let data = PDFExporter.buildPDF(properties: propertiesToExport, year: selectedYear)
             DispatchQueue.main.async {
                 pdfData = data
                 isGenerating = false
                 showShare = true
             }
         }
+    }
+
+    private func filenameSafe(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: #"[^A-Za-z0-9]+"#, with: "_", options: .regularExpression)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "_"))
     }
 
     private func transactionCount(for property: Property, year: Int) -> Int {

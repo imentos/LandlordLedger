@@ -59,15 +59,38 @@ struct PropertiesView: View {
 
     private var propertyList: some View {
         List {
-            ForEach(properties) { property in
-                NavigationLink {
-                    PropertyDetailView(property: property)
-                } label: {
-                    propertyRow(property)
+            ForEach(propertyOwnerGroups, id: \.title) { group in
+                Section(group.title) {
+                    ForEach(group.properties) { property in
+                        NavigationLink {
+                            PropertyDetailView(property: property)
+                        } label: {
+                            propertyRow(property)
+                        }
+                    }
+                    .onDelete { offsets in
+                        deleteProperties(offsets, in: group.properties)
+                    }
                 }
             }
-            .onDelete(perform: deleteProperties)
         }
+    }
+
+    private var propertyOwnerGroups: [(title: String, properties: [Property])] {
+        let grouped = Dictionary(grouping: properties) { property in
+            let owner = property.ownerName.trimmingCharacters(in: .whitespacesAndNewlines)
+            return owner.isEmpty ? "Unassigned Owner" : owner
+        }
+
+        return grouped
+            .map { title, properties in
+                (title: title, properties: properties.sorted { $0.name < $1.name })
+            }
+            .sorted { lhs, rhs in
+                if lhs.title == "Unassigned Owner" { return false }
+                if rhs.title == "Unassigned Owner" { return true }
+                return lhs.title < rhs.title
+            }
     }
 
     private func propertyRow(_ property: Property) -> some View {
@@ -108,9 +131,9 @@ struct PropertiesView: View {
         return formatter.string(from: NSDecimalNumber(decimal: value)) ?? "\(value)"
     }
 
-    private func deleteProperties(at offsets: IndexSet) {
+    private func deleteProperties(_ offsets: IndexSet, in visibleProperties: [Property]) {
         for index in offsets {
-            modelContext.delete(properties[index])
+            modelContext.delete(visibleProperties[index])
         }
         try? modelContext.save()
     }
@@ -132,6 +155,7 @@ struct PropertyFormView: View {
 
     @State private var name       = ""
     @State private var address    = ""
+    @State private var ownerName  = ""
     @State private var keywords   = ""   // comma-separated, e.g. "Elmwood, rent, deposit"
 
     private var isEditing: Bool {
@@ -145,6 +169,7 @@ struct PropertyFormView: View {
                 Section("Property Details") {
                     TextField("Name (e.g. 123 Elm St)", text: $name)
                     TextField("Address (optional)", text: $address)
+                    TextField("Owner / Portfolio (optional)", text: $ownerName)
                 }
                 Section {
                     TextField("Keywords (comma-separated)", text: $keywords)
@@ -169,8 +194,9 @@ struct PropertyFormView: View {
             }
             .onAppear {
                 if case .edit(let property) = mode {
-                    name    = property.name
+                    name = property.name
                     address = property.address
+                    ownerName = property.ownerName
                     keywords = property.keywords.joined(separator: ", ")
                 }
             }
@@ -187,12 +213,14 @@ struct PropertyFormView: View {
         case .add:
             let property = Property(name: name.trimmingCharacters(in: .whitespaces),
                                     address: address.trimmingCharacters(in: .whitespaces),
+                                    ownerName: ownerName.trimmingCharacters(in: .whitespaces),
                                     keywords: kws)
             modelContext.insert(property)
         case .edit(let property):
-            property.name     = name.trimmingCharacters(in: .whitespaces)
-            property.address  = address.trimmingCharacters(in: .whitespaces)
-            property.keywords = kws
+            property.name      = name.trimmingCharacters(in: .whitespaces)
+            property.address   = address.trimmingCharacters(in: .whitespaces)
+            property.ownerName = ownerName.trimmingCharacters(in: .whitespaces)
+            property.keywords  = kws
         }
 
         try? modelContext.save()

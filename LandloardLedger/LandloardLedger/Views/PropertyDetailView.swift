@@ -182,8 +182,15 @@ struct PropertyDetailView: View {
             }
             .frame(height: 60)
 
+            if !property.ownerName.isEmpty {
+                Label(property.ownerName, systemImage: "person.2")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
             if !property.address.isEmpty {
-                Text(property.address)
+                Label(property.address, systemImage: "mappin.and.ellipse")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)

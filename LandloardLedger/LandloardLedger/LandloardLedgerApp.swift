@@ -11,9 +11,15 @@ import SwiftData
 @main
 struct LandloardLedgerApp: App {
 
+    @AppStorage("onboardingComplete") private var onboardingComplete = false
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if onboardingComplete {
+                ContentView()
+            } else {
+                OnboardingContainerView()
+            }
         }
         .modelContainer(for: [Property.self, Tenant.self, Transaction.self, MatchingRule.self])
     }

@@ -209,7 +209,7 @@ struct LocalCategorizationService {
         }
 
         for property in properties {
-            let candidates = ([property.name, property.address] + property.keywords)
+            let candidates = ([property.name, property.address, property.ownerName] + property.keywords)
                 .map(normalize)
                 .filter { !$0.isEmpty }
 

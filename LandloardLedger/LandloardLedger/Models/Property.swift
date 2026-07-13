@@ -6,6 +6,7 @@ final class Property {
 
     var name: String        // "Oak Street"
     var address: String     // "123 Oak St"
+    var ownerName: String = "" // owner, client, or portfolio name
     var keywords: [String]  // ["oak st", "acme plumbing"] — used for v2 accuracy improvement
 
     // MARK: - Relationships
@@ -18,10 +19,11 @@ final class Property {
 
     // MARK: - Init
 
-    init(name: String, address: String, keywords: [String] = []) {
-        self.name     = name
-        self.address  = address
-        self.keywords = keywords
+    init(name: String, address: String, ownerName: String = "", keywords: [String] = []) {
+        self.name      = name
+        self.address   = address
+        self.ownerName = ownerName
+        self.keywords  = keywords
     }
 
     // MARK: - Computed helpers
