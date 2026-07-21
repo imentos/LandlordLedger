@@ -26,7 +26,7 @@ struct InboxCardView: View {
         "Insurance",
         "Legal and Professional Fees",
         "Management Fees",
-        "Mortgage Interest",
+        "Mortgage",
         "Other Interest",
         "Repairs",
         "Supplies",

@@ -75,8 +75,12 @@ struct OnboardingValueDeliveryView: View {
                             .font(.subheadline.bold())
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.brand)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(Color.brand, in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(.white)
+                    .buttonStyle(.plain)
+                    .shadow(color: Color.brand.opacity(0.22), radius: 8, y: 3)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 16)
                 }

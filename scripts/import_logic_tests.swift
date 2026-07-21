@@ -93,7 +93,7 @@ struct ImportLogicTests {
 
         let hsbcRule = MatchingRule(
             normalizedPattern: hsbcPattern,
-            category: "Mortgage Interest",
+            category: "Mortgage",
             property: propertyB
         )
         let hsbcRuleResult = try expectValue(
@@ -113,7 +113,7 @@ struct ImportLogicTests {
             ).first,
             "Expected HSBC learned rule categorization result"
         )
-        try expect(hsbcRuleResult.category == "Mortgage Interest", "Expected HSBC rule to remember Mortgage Interest")
+        try expect(hsbcRuleResult.category == "Mortgage", "Expected HSBC rule to remember Mortgage")
         try expect(hsbcRuleResult.property == propertyB.name, "Expected HSBC rule to remember assigned property")
 
         let matchedTenants = results.filter { $0.tenant != nil }

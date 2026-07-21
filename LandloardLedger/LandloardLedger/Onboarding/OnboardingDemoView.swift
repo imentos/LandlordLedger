@@ -142,11 +142,13 @@ struct OnboardingDemoView: View {
                         Image(systemName: "chevron.right")
                             .font(.caption)
                     }
-                    .padding(12)
-                    .background(Color.brand.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
-                    .foregroundStyle(Color.brand)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(Color.brand, in: RoundedRectangle(cornerRadius: 12))
+                    .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
+                .shadow(color: Color.brand.opacity(0.24), radius: 8, y: 3)
             }
             .padding(18)
             .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18))

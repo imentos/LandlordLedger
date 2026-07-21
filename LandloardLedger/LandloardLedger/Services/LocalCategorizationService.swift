@@ -18,6 +18,22 @@ struct CategorizationResult {
     let confidence: Double
 }
 
+struct PropertyMatchingSnapshot {
+    let name: String
+    let address: String
+    let ownerName: String
+    let keywords: [String]
+    let mortgageAliases: [String]
+
+    init(property: Property) {
+        self.name = property.name
+        self.address = property.address
+        self.ownerName = property.ownerName
+        self.keywords = property.keywords
+        self.mortgageAliases = property.mortgageAliasList
+    }
+}
+
 // MARK: - Local rules engine
 
 struct LocalCategorizationService {
@@ -27,7 +43,7 @@ struct LocalCategorizationService {
     static let scheduleECategories: [String] = [
         "Advertising", "Auto and Travel", "Cleaning and Maintenance",
         "Commissions", "Insurance", "Legal and Professional Fees",
-        "Management Fees", "Mortgage Interest", "Other Interest",
+        "Management Fees", "Mortgage", "Other Interest",
         "Repairs", "Supplies", "Taxes", "Utilities",
         "Rent Income", "Other Expense", "Personal/Unknown"
     ]
@@ -59,7 +75,7 @@ struct LocalCategorizationService {
         Rule(["state farm", "allstate", "farmers insurance", "liberty mutual", "progressive", "geico"], category: "Insurance", confidence: 0.95, requiresExpense: true),
         Rule(["pg&e", "pge", "pgande", "edison", "con edison", "water bill", "sewer", "garbage", "trash", "waste management", "xfinity", "comcast"], category: "Utilities", confidence: 0.9, requiresExpense: true),
         Rule(["property tax", "tax collector", "county treasurer", "assessor"], category: "Taxes", confidence: 0.93, requiresExpense: true),
-        Rule(["mortgage", "rocket mortgage", "home loan", "loan interest"], category: "Mortgage Interest", confidence: 0.75, requiresExpense: true),
+        Rule(["mortgage", "rocket mortgage", "home loan", "loan interest"], category: "Mortgage", confidence: 0.75, requiresExpense: true),
         Rule(["plumbing", "plumber", "hvac", "heating", "air conditioning", "roofing", "roofer", "electrician", "electrical", "locksmith", "appliance repair"], category: "Repairs", confidence: 0.9, requiresExpense: true),
         Rule(["home depot", "lowe's", "lowes", "ace hardware", "harbor freight"], category: "Supplies", confidence: 0.62, requiresExpense: true),
         Rule(["cleaning", "maid", "janitorial", "pest control", "landscaping", "lawn", "tree service"], category: "Cleaning and Maintenance", confidence: 0.86, requiresExpense: true),
@@ -70,13 +86,16 @@ struct LocalCategorizationService {
         Rule(["commission"], category: "Commissions", confidence: 0.85, requiresExpense: true)
     ]
 
+    @MainActor
     static func categorize(
         transactions: [TransactionInput],
         properties: [Property],
         tenants: [Tenant] = [],
         matchingRules: [MatchingRule] = []
     ) -> [CategorizationResult] {
-        transactions.map { input in
+        let propertySnapshots = properties.map(PropertyMatchingSnapshot.init)
+
+        return transactions.map { input in
             let normalized = normalize(input.description)
             let normalizedType = normalize(input.type)
 
@@ -97,21 +116,27 @@ struct LocalCategorizationService {
                 type: normalizedType,
                 tenants: tenants
             )
-            let propertyMatch = matchProperty(text: normalized, properties: properties)
-            let matchedProperty = tenantMatch?.tenant.property ?? propertyMatch?.property
+            let mortgageMatch = matchMortgageProperty(text: normalized, amount: input.amount, properties: propertySnapshots)
+            let propertyMatch = matchProperty(text: normalized, properties: propertySnapshots)
+            let matchedPropertyName = tenantMatch?.tenant.property?.name
+                ?? mortgageMatch?.property.name
+                ?? propertyMatch?.property.name
+            let category = mortgageMatch == nil ? categoryMatch.category : "Mortgage"
             let confidence: Double
 
             if let tenantMatch {
                 confidence = min(max(categoryMatch.confidence, 0.9), tenantMatch.confidence)
+            } else if let mortgageMatch {
+                confidence = mortgageMatch.confidence
             } else {
                 confidence = min(categoryMatch.confidence, propertyMatch?.confidence ?? categoryMatch.propertyPenalty)
             }
 
             return CategorizationResult(
                 index: input.index,
-                property: matchedProperty?.name ?? "Personal/Unknown",
+                property: matchedPropertyName ?? "Personal/Unknown",
                 tenant: tenantMatch?.tenant.name,
-                category: categoryMatch.category,
+                category: category,
                 confidence: confidence
             )
         }
@@ -203,7 +228,23 @@ struct LocalCategorizationService {
             || normalizedType.contains("ach credit")
     }
 
-    private static func matchProperty(text: String, properties: [Property]) -> (property: Property, confidence: Double)? {
+    private static func matchMortgageProperty(text: String, amount: Decimal, properties: [PropertyMatchingSnapshot]) -> (property: PropertyMatchingSnapshot, confidence: Double)? {
+        guard amount < 0 else { return nil }
+
+        for property in properties {
+            let aliases = property.mortgageAliases
+                .map(normalize)
+                .filter { $0.count >= 3 }
+
+            if aliases.contains(where: { text.contains($0) || $0.contains(text) }) {
+                return (property, 0.94)
+            }
+        }
+
+        return nil
+    }
+
+    private static func matchProperty(text: String, properties: [PropertyMatchingSnapshot]) -> (property: PropertyMatchingSnapshot, confidence: Double)? {
         guard properties.count > 1 else {
             return properties.first.map { ($0, 0.82) }
         }

@@ -1,33 +1,24 @@
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
-import UIKit
 
 struct ImportView: View {
 
+    var showsDoneButton = false
+
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @Query private var properties: [Property]
     @Query private var tenants: [Tenant]
     @Query private var matchingRules: [MatchingRule]
 
     @State private var viewModel    = ImportViewModel()
     @State private var showFilePicker = false
-    @State private var showPasteSheet = false
-    @State private var showManualTransactionSheet = false
     @State private var pastedCSVText = ""
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 32) {
-
-                Spacer()
-
-                // Icon
-                Image(systemName: "square.and.arrow.down.on.square")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.tint)
-
-                // State-dependent content
+            Group {
                 switch viewModel.state {
 
                 case .idle:
@@ -48,26 +39,15 @@ struct ImportView: View {
                 case .error(let msg):
                     errorView(msg)
                 }
-
-                Spacer()
             }
-            .padding()
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
             .navigationTitle("Import")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        showManualTransactionSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .disabled(properties.isEmpty)
-                }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        Image(systemName: "gearshape")
+                if showsDoneButton {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") { dismiss() }
                     }
                 }
             }
@@ -78,100 +58,56 @@ struct ImportView: View {
             ) { result in
                 handleFilePick(result)
             }
-            .sheet(isPresented: $showPasteSheet) {
-                pasteCSVSheet
-            }
-            .sheet(isPresented: $showManualTransactionSheet) {
-                ManualTransactionView()
-            }
         }
     }
 
     // MARK: - Sub-views
 
     private var idleView: some View {
-        VStack(spacing: 16) {
-            Text("Import this week's transactions")
-                .font(.headline)
-            Text("Export the last 7 days from Chase as CSV, then import it here.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Copy CSV text on your computer, then tap Paste here to import it.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
 
-            Button {
-                showFilePicker = true
-            } label: {
-                Label("Choose Chase CSV", systemImage: "folder")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .disabled(properties.isEmpty)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("Paste CSV")
+                            .font(.subheadline.weight(.semibold))
+                        Spacer()
+                        if let count = previewTransactionCount {
+                            Text("\(count) detected")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
 
-            Button {
-                showPasteSheet = true
-            } label: {
-                Label("Paste CSV Text", systemImage: "doc.on.clipboard")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .disabled(properties.isEmpty)
+                    TextEditor(text: $pastedCSVText)
+                        .font(.system(.footnote, design: .monospaced))
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                        .frame(maxWidth: .infinity, minHeight: 180)
+                        .padding(8)
+                        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 8))
 
-            if properties.isEmpty {
-                Text("Add at least one property in Settings first.")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-            }
-        }
-    }
-
-    private var pasteCSVSheet: some View {
-        NavigationStack {
-            VStack(spacing: 16) {
-                TextEditor(text: $pastedCSVText)
-                    .font(.system(.footnote, design: .monospaced))
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                    .frame(minHeight: 260)
-                    .padding(8)
-                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
-
-                HStack {
-                    Button {
-                        pastedCSVText = UIPasteboard.general.string ?? ""
-                    } label: {
-                        Label("Paste Clipboard", systemImage: "clipboard")
+                    PasteButton(payloadType: String.self) { strings in
+                        guard let csvText = strings.first else { return }
+                        pastedCSVText = csvText
+                        importPastedText()
                     }
                     .buttonStyle(.bordered)
-
-                    Spacer()
-
-                    if let count = previewTransactionCount {
-                        Text("\(count) transaction\(count == 1 ? "" : "s") detected")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .disabled(properties.isEmpty)
                 }
 
-                Button {
-                    importPastedText()
-                } label: {
-                    Label("Import Pasted CSV", systemImage: "square.and.arrow.down")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .disabled(pastedCSVText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-            .padding()
-            .navigationTitle("Paste CSV")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { showPasteSheet = false }
+                if properties.isEmpty {
+                    Text("Add at least one property in Settings first.")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -205,7 +141,7 @@ struct ImportView: View {
             .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
 
             if summary.needsReview > 0 {
-                Text("Open the Inbox tab to review \(summary.needsReview) transaction\(summary.needsReview == 1 ? "" : "s").")
+                Text("Open the Transactions tab to review \(summary.needsReview) transaction\(summary.needsReview == 1 ? "" : "s").")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -276,8 +212,9 @@ struct ImportView: View {
     }
 
     private func importPastedText() {
-        let csvText = pastedCSVText
-        showPasteSheet = false
+        let csvText = pastedCSVText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !csvText.isEmpty else { return }
+
         Task {
             try? await viewModel.importCSVText(
                 csvText,

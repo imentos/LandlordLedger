@@ -12,9 +12,6 @@ struct OnboardingTinderView: View {
     ]
 
     @State private var currentIndex = 0
-    @State private var dragOffset: CGSize = .zero
-    @State private var dragRotation: Double = 0
-
     private var isDone: Bool { currentIndex >= cards.count }
 
     var body: some View {
@@ -23,7 +20,7 @@ struct OnboardingTinderView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Do any of these\nsound familiar?")
                     .font(.title2.bold())
-                Text("Swipe right if yes, left if no.")
+                Text("Tap Yes or No to continue.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -42,19 +39,10 @@ struct OnboardingTinderView: View {
 
             Spacer()
 
-            // Hint row
             if !isDone {
-                HStack {
-                    Label("No", systemImage: "xmark")
-                        .font(.caption.bold())
-                        .foregroundStyle(.red)
-                    Spacer()
-                    Label("Yes", systemImage: "checkmark")
-                        .font(.caption.bold())
-                        .foregroundStyle(.green)
-                }
-                .padding(.horizontal, 48)
-                .padding(.bottom, 8)
+                answerButtons
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 48)
             }
 
             // Footer
@@ -89,40 +77,41 @@ struct OnboardingTinderView: View {
 
             // Top card
             cardView(text: cards[currentIndex])
-                .offset(dragOffset)
-                .rotationEffect(.degrees(dragRotation))
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            dragOffset = value.translation
-                            dragRotation = Double(value.translation.width / 20)
-                        }
-                        .onEnded { value in
-                            let threshold: CGFloat = 80
-                            if abs(value.translation.width) > threshold {
-                                let direction: CGFloat = value.translation.width > 0 ? 1 : -1
-                                withAnimation(.easeOut(duration: 0.25)) {
-                                    dragOffset = CGSize(width: direction * 500, height: value.translation.height)
-                                }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                                    coordinator.tinderAgreements.append(value.translation.width > 0)
-                                    currentIndex += 1
-                                    dragOffset = .zero
-                                    dragRotation = 0
-                                }
-                            } else {
-                                withAnimation(.spring) {
-                                    dragOffset = .zero
-                                    dragRotation = 0
-                                }
-                            }
-                        }
-                )
                 .zIndex(1)
-                .animation(.spring, value: dragOffset)
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
         }
         .frame(height: 240)
         .padding(.horizontal, 24)
+    }
+
+    private var answerButtons: some View {
+        HStack(spacing: 12) {
+            Button {
+                answer(false)
+            } label: {
+                Label("No", systemImage: "xmark")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+
+            Button {
+                answer(true)
+            } label: {
+                Label("Yes", systemImage: "checkmark")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.brand)
+            .controlSize(.large)
+        }
+    }
+
+    private func answer(_ agreed: Bool) {
+        coordinator.tinderAgreements.append(agreed)
+        withAnimation(.easeInOut(duration: 0.2)) {
+            currentIndex += 1
+        }
     }
 
     private func cardView(text: String) -> some View {

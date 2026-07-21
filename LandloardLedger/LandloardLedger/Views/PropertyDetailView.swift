@@ -20,22 +20,6 @@ struct PropertyDetailView: View {
     @State private var showAddTenantSheet = false
     @State private var tenantToEdit: Tenant?
     @State private var tenantToDelete: Tenant?
-    @State private var transactionToReview: Transaction?
-
-    private var groupedTransactions: [(String, [Transaction])] {
-        let approved = property.approvedTransactions.sorted { $0.date > $1.date }
-        let grouped  = Dictionary(grouping: approved) { tx in
-            tx.date.formatted(.dateTime.year(.defaultDigits).month(.abbreviated))
-        }
-        // Sort months newest first
-        let sorted = grouped.sorted { a, b in
-            guard let da = approvedTransactions(for: a.key).first?.date,
-                  let db = approvedTransactions(for: b.key).first?.date else { return false }
-            return da > db
-        }
-        return sorted
-    }
-
     var body: some View {
         List {
             // Summary header
@@ -90,31 +74,6 @@ struct PropertyDetailView: View {
                     Label("Add Tenant", systemImage: "person.badge.plus")
                 }
             }
-
-            // Transactions by month
-            ForEach(groupedTransactions, id: \.0) { month, txs in
-                Section(month) {
-                    ForEach(txs) { tx in
-                        transactionRow(tx)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button {
-                                    transactionToReview = tx
-                                } label: {
-                                    Label("Review", systemImage: "tray.and.arrow.down")
-                                }
-                                .tint(.orange)
-                            }
-                    }
-                }
-            }
-
-            if property.approvedTransactions.isEmpty {
-                Section {
-                    Text("No approved transactions yet.")
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
-            }
         }
         .navigationTitle(property.name)
         .navigationBarTitleDisplayMode(.large)
@@ -151,87 +110,37 @@ struct PropertyDetailView: View {
         } message: {
             Text(deleteConfirmationMessage)
         }
-        .alert(
-            "Move back to Inbox?",
-            isPresented: reviewConfirmationBinding,
-        ) {
-            Button("Move to Inbox", role: .destructive) {
-                if let transactionToReview {
-                    moveTransactionBackToInbox(transactionToReview)
-                }
-                transactionToReview = nil
-            }
-            Button("Cancel", role: .cancel) {
-                transactionToReview = nil
-            }
-        } message: {
-            Text(reviewConfirmationMessage)
-        }
     }
 
     // MARK: - Summary
 
     private var summarySection: some View {
-        VStack(spacing: 12) {
-            HStack {
-                summaryCard("Income", value: property.totalIncome, color: .green)
-                Divider()
-                summaryCard("Expenses", value: property.totalExpenses, color: .red)
-                Divider()
-                summaryCard("Net", value: property.netIncome, color: property.netIncome >= 0 ? .green : .red)
-            }
-            .frame(height: 60)
-
+        VStack(alignment: .leading, spacing: 12) {
             if !property.ownerName.isEmpty {
                 Label(property.ownerName, systemImage: "person.2")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             if !property.address.isEmpty {
                 Label(property.address, systemImage: "mappin.and.ellipse")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-    }
-
-    private func summaryCard(_ label: String, value: Decimal, color: Color) -> some View {
-        VStack(spacing: 2) {
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(currencyString(value))
-                .font(.subheadline.bold())
-                .foregroundStyle(color)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
-    // MARK: - Transaction row
-
-    private func transactionRow(_ tx: Transaction) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(tx.descriptionText)
                     .font(.subheadline)
-                    .lineLimit(1)
-                Text(transactionSubtitle(tx))
-                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(currencyString(tx.amount))
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(tx.amount >= 0 ? .green : .primary)
-                Text(tx.date.formatted(date: .abbreviated, time: .omitted))
-                    .font(.caption2)
+
+            if !property.mortgageAliasList.isEmpty {
+                Label(property.mortgageAliasList.joined(separator: ", "), systemImage: "banknote")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            if property.ownerName.isEmpty && property.address.isEmpty && property.mortgageAliasList.isEmpty {
+                Text("No owner, address, or mortgage aliases yet.")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func tenantRow(_ tenant: Tenant, showsUnit: Bool = false) -> some View {
@@ -262,17 +171,12 @@ struct PropertyDetailView: View {
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.tertiary)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     private func deleteTenant(_ tenant: Tenant) {
         modelContext.delete(tenant)
-        try? modelContext.save()
-    }
-
-    private func moveTransactionBackToInbox(_ transaction: Transaction) {
-        transaction.approved = false
-        transaction.source = "needs_manual_review"
-        transaction.confidence = min(transaction.confidence, 0.25)
         try? modelContext.save()
     }
 
@@ -287,17 +191,6 @@ struct PropertyDetailView: View {
         )
     }
 
-    private var reviewConfirmationBinding: Binding<Bool> {
-        Binding(
-            get: { transactionToReview != nil },
-            set: { isPresented in
-                if !isPresented {
-                    transactionToReview = nil
-                }
-            }
-        )
-    }
-
     // MARK: - Helpers
 
     private func currencyString(_ value: Decimal) -> String {
@@ -305,13 +198,6 @@ struct PropertyDetailView: View {
         formatter.numberStyle = .currency
         formatter.currencyCode = "USD"
         return formatter.string(from: NSDecimalNumber(decimal: value)) ?? "\(value)"
-    }
-
-    private func transactionSubtitle(_ tx: Transaction) -> String {
-        if let tenant = tx.tenant {
-            return "\(tx.category) • \(tenant.name)"
-        }
-        return tx.category
     }
 
     private var deleteConfirmationMessage: String {
@@ -324,14 +210,6 @@ struct PropertyDetailView: View {
         }
 
         return "Remove \(tenant.name) from Unit \(tenant.unit) at \(property.name)?"
-    }
-
-    private var reviewConfirmationMessage: String {
-        guard let transaction = transactionToReview else {
-            return "This transaction will appear in Inbox again."
-        }
-
-        return "\(transaction.descriptionText) will move out of \(property.name) and appear in Inbox so you can assign it again."
     }
 
     private var sortedTenants: [Tenant] {
@@ -393,13 +271,6 @@ struct PropertyDetailView: View {
             .replacingOccurrences(of: #"^\D*"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"\D.*$"#, with: "", options: .regularExpression)
         return (Int(numberText), trimmed)
-    }
-
-    /// Helper used to find a date for sorting month buckets.
-    private func approvedTransactions(for month: String) -> [Transaction] {
-        property.approvedTransactions.filter { tx in
-            tx.date.formatted(.dateTime.year(.defaultDigits).month(.abbreviated)) == month
-        }
     }
 }
 

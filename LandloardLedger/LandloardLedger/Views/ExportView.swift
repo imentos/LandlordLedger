@@ -4,6 +4,32 @@ import StoreKit
 
 struct ExportView: View {
 
+    private enum ReportPeriod: String, CaseIterable, Identifiable {
+        case month = "Month"
+        case last = "Last"
+        case quarter = "Quarter"
+        case year = "Year"
+        case custom = "Custom"
+
+        var id: String { rawValue }
+    }
+
+    private enum ExportScope: String, CaseIterable, Identifiable {
+        case all = "All"
+        case owner = "Owner"
+        case property = "Property"
+
+        var id: String { rawValue }
+    }
+
+    private struct ReportBreakdown: Identifiable {
+        let title: String
+        let count: Int
+        let amount: Decimal
+
+        var id: String { title }
+    }
+
     private enum ProductID {
         static let proYearly = "landledger.pro.annual"
         static let taxExportPass = "landledger.tax_export_pass"
@@ -12,9 +38,15 @@ struct ExportView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Property.name) private var properties: [Property]
+    @Query(sort: \Transaction.date, order: .reverse) private var transactions: [Transaction]
 
+    @State private var selectedPeriod: ReportPeriod = .month
+    @State private var customStartDate = Calendar.current.date(from: DateComponents(year: Calendar.current.component(.year, from: Date()), month: 1, day: 1)) ?? Date()
+    @State private var customEndDate = Date()
     @State private var selectedYear = Calendar.current.component(.year, from: Date())
+    @State private var selectedScope: ExportScope = .all
     @State private var selectedOwnerName = ""
+    @State private var selectedPropertyName = ""
     @State private var pdfData: Data?
     @State private var showShare = false
     @State private var isGenerating = false
@@ -46,105 +78,155 @@ struct ExportView: View {
             .sorted()
     }
 
-    private var exportProperties: [Property] {
-        guard !selectedOwnerName.isEmpty else { return properties }
-        return properties.filter { $0.ownerName == selectedOwnerName }
+    private var propertyNames: [String] {
+        properties.map(\.name).filter { !$0.isEmpty }.sorted()
     }
 
-    private var selectedOwnerLabel: String {
-        selectedOwnerName.isEmpty ? "All Owners" : selectedOwnerName
+    private var exportProperties: [Property] {
+        switch selectedScope {
+        case .all:
+            return properties
+        case .owner:
+            guard !selectedOwnerName.isEmpty else { return properties }
+            return properties.filter { $0.ownerName == selectedOwnerName }
+        case .property:
+            guard !selectedPropertyName.isEmpty else { return properties }
+            return properties.filter { $0.name == selectedPropertyName }
+        }
+    }
+
+    private var exportScopeFilenamePart: String {
+        switch selectedScope {
+        case .all:
+            return "All_Properties"
+        case .owner:
+            return selectedOwnerName.isEmpty ? "All_Owners" : filenameSafe(selectedOwnerName)
+        case .property:
+            return selectedPropertyName.isEmpty ? "Property" : filenameSafe(selectedPropertyName)
+        }
+    }
+
+    private var reportTransactions: [Transaction] {
+        let interval = reportDateInterval
+        return transactions.filter { transaction in
+            guard transaction.property != nil else { return false }
+            guard interval.contains(transaction.date) else { return false }
+            return matchesExportScope(transaction)
+        }
+    }
+
+    private var reportIncome: Decimal {
+        reportTransactions
+            .filter { $0.amount > 0 }
+            .reduce(Decimal(0)) { $0 + $1.amount }
+    }
+
+    private var reportExpenses: Decimal {
+        reportTransactions
+            .filter { $0.amount < 0 }
+            .reduce(Decimal(0)) { $0 + abs($1.amount) }
+    }
+
+    private var reportNet: Decimal {
+        reportIncome - reportExpenses
+    }
+
+    private var categoryBreakdowns: [ReportBreakdown] {
+        let grouped = Dictionary(grouping: reportTransactions) { transaction in
+            let category = transaction.category.trimmingCharacters(in: .whitespacesAndNewlines)
+            return category.isEmpty ? "Uncategorized" : category
+        }
+
+        return grouped.map { category, transactions in
+            ReportBreakdown(
+                title: category,
+                count: transactions.count,
+                amount: transactions.reduce(Decimal(0)) { $0 + $1.amount }
+            )
+        }
+        .sorted { abs($0.amount) > abs($1.amount) }
+    }
+
+    private var propertyBreakdowns: [ReportBreakdown] {
+        let grouped = Dictionary(grouping: reportTransactions) { transaction in
+            transaction.property?.name ?? "No property"
+        }
+
+        return grouped.map { propertyName, transactions in
+            ReportBreakdown(
+                title: propertyName,
+                count: transactions.count,
+                amount: transactions.reduce(Decimal(0)) { $0 + $1.amount }
+            )
+        }
+        .sorted { $0.amount > $1.amount }
+    }
+
+    private var reportDateInterval: DateInterval {
+        let calendar = Calendar.current
+        let now = Date()
+
+        switch selectedPeriod {
+        case .month:
+            return calendar.dateInterval(of: .month, for: now) ?? DateInterval(start: now, duration: 0)
+        case .last:
+            let previousMonth = calendar.date(byAdding: .month, value: -1, to: now) ?? now
+            return calendar.dateInterval(of: .month, for: previousMonth) ?? DateInterval(start: previousMonth, duration: 0)
+        case .quarter:
+            let components = calendar.dateComponents([.year, .month], from: now)
+            let month = components.month ?? 1
+            let quarterStartMonth = ((month - 1) / 3) * 3 + 1
+            let start = calendar.date(from: DateComponents(year: components.year, month: quarterStartMonth, day: 1)) ?? now
+            let end = calendar.date(byAdding: .month, value: 3, to: start) ?? now
+            return DateInterval(start: start, end: end)
+        case .year:
+            let start = calendar.date(from: DateComponents(year: selectedYear, month: 1, day: 1)) ?? now
+            let end = calendar.date(byAdding: .year, value: 1, to: start) ?? now
+            return DateInterval(start: start, end: end)
+        case .custom:
+            let start = calendar.startOfDay(for: min(customStartDate, customEndDate))
+            let endBase = calendar.startOfDay(for: max(customStartDate, customEndDate))
+            let end = calendar.date(byAdding: .day, value: 1, to: endBase) ?? endBase
+            return DateInterval(start: start, end: end)
+        }
+    }
+
+    private var reportPeriodTitle: String {
+        let interval = reportDateInterval
+        let start = interval.start.formatted(.dateTime.month(.abbreviated).day().year())
+        let endDate = Calendar.current.date(byAdding: .day, value: -1, to: interval.end) ?? interval.end
+        let end = endDate.formatted(.dateTime.month(.abbreviated).day().year())
+        return start == end ? start : "\(start) - \(end)"
     }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 32) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    reportPeriodSection
+                    reportScopeSection
+                    reportSummaryGrid
 
-                Spacer()
-
-                Image(systemName: "doc.richtext")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.tint)
-
-                VStack(spacing: 20) {
-                    Text("Generate Tax Report")
-                        .font(.title2.bold())
-
-                    Text("Creates a Schedule E summary PDF for all properties, ready to hand to your accountant.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Tax Year")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
-                            Picker("Tax Year", selection: $selectedYear) {
-                                ForEach(availableYears, id: \.self) { year in
-                                    Text(String(year)).tag(year)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                            .labelsHidden()
-                        }
-
-                        if !ownerNames.isEmpty {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Owner / Portfolio")
-                                    .font(.caption.weight(.medium))
-                                    .foregroundStyle(.secondary)
-                                Picker("Owner / Portfolio", selection: $selectedOwnerName) {
-                                    Text("All Owners").tag("")
-                                    ForEach(ownerNames, id: \.self) { ownerName in
-                                        Text(ownerName).tag(ownerName)
-                                    }
-                                }
-                                .pickerStyle(.menu)
-                                .labelsHidden()
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                    if !exportProperties.isEmpty {
-                        reportPreview
+                    if reportTransactions.isEmpty {
+                        ContentUnavailableView(
+                            "No report data",
+                            systemImage: "chart.bar.doc.horizontal",
+                            description: Text("Assign properties to transactions for this period to see rental income, expenses, and net results.")
+                        )
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                    } else {
+                        breakdownSection(title: "By Category", rows: categoryBreakdowns)
+                        breakdownSection(title: "By Property", rows: propertyBreakdowns)
                     }
 
-                    Button {
-                        beginExport()
-                    } label: {
-                        if isGenerating {
-                            HStack(spacing: 8) {
-                                ProgressView().scaleEffect(0.8)
-                                Text("Generating...")
-                            }
-                            .frame(maxWidth: .infinity)
-                        } else {
-                            Label(exportButtonTitle, systemImage: hasExportAccess ? "doc.badge.plus" : "lock.open")
-                                .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .disabled(isGenerating || exportProperties.isEmpty)
-
-                    if properties.isEmpty {
-                        Text("Add at least one property in Settings first.")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    } else if !hasExportAccess {
-                        Text("Export is included with RentalKeeper Pro or a one-time Tax Export Pass.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
+                    exportSection
                 }
-                .padding(.horizontal)
-
-                Spacer()
+                .padding()
             }
-            .padding()
-            .navigationTitle("Export")
+            .background(Color(uiColor: .systemGroupedBackground))
+            .navigationTitle("Reports")
+            .navigationBarTitleDisplayMode(.inline)
             .task {
                 await refreshPurchases()
                 await loadProductsIfNeeded()
@@ -160,33 +242,186 @@ struct ExportView: View {
         }
     }
 
-    private var exportButtonTitle: String {
-        hasExportAccess ? "Generate \(selectedYear) Report" : "Unlock Tax Export"
-    }
+    private var reportPeriodSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Report Period")
+                .font(.headline)
 
-    private var reportPreview: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("What's included")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.secondary)
-            Text(selectedOwnerLabel)
+            Picker("Report Period", selection: $selectedPeriod) {
+                ForEach(ReportPeriod.allCases) { period in
+                    Text(period.rawValue).tag(period)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            if selectedPeriod == .year {
+                Picker("Year", selection: $selectedYear) {
+                    ForEach(availableYears, id: \.self) { year in
+                        Text(String(year)).tag(year)
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+
+            if selectedPeriod == .custom {
+                HStack {
+                    DatePicker("From", selection: $customStartDate, displayedComponents: .date)
+                    DatePicker("To", selection: $customEndDate, displayedComponents: .date)
+                }
+                .font(.caption)
+            }
+
+            Text(reportPeriodTitle)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
 
-            ForEach(exportProperties) { property in
-                let count = transactionCount(for: property, year: selectedYear)
-                HStack {
-                    Text(property.name)
-                        .font(.caption)
-                    Spacer()
-                    Text("\(count) transaction\(count == 1 ? "" : "s")")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+    private var reportScopeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Report Scope")
+                .font(.headline)
+
+            Picker("Report Scope", selection: $selectedScope) {
+                ForEach(ExportScope.allCases) { scope in
+                    Text(scope.rawValue).tag(scope)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            if selectedScope == .owner && !ownerNames.isEmpty {
+                Picker("Owner / Portfolio", selection: $selectedOwnerName) {
+                    Text("All Owners").tag("")
+                    ForEach(ownerNames, id: \.self) { ownerName in
+                        Text(ownerName).tag(ownerName)
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+
+            if selectedScope == .property && !propertyNames.isEmpty {
+                Picker("Property", selection: $selectedPropertyName) {
+                    Text("All Properties").tag("")
+                    ForEach(propertyNames, id: \.self) { propertyName in
+                        Text(propertyName).tag(propertyName)
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+        }
+    }
+
+    private var reportSummaryGrid: some View {
+        VStack(spacing: 14) {
+            HStack(spacing: 14) {
+                reportMetricCard(title: "Income", value: currencyString(reportIncome), systemImage: "dollarsign.circle", tint: .green)
+                reportMetricCard(title: "Expenses", value: currencyString(reportExpenses), systemImage: "wrench.and.screwdriver", tint: .orange)
+            }
+            HStack(spacing: 14) {
+                reportMetricCard(title: "Net", value: currencyString(reportNet), systemImage: "chart.bar.fill", tint: reportNet >= 0 ? .green : .red)
+                reportMetricCard(title: "Records", value: "\(reportTransactions.count)", systemImage: "list.bullet.rectangle", tint: .blue)
+            }
+        }
+    }
+
+    private func reportMetricCard(title: String, value: String, systemImage: String, tint: Color) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.title3)
+                .foregroundStyle(tint)
+            Text(value)
+                .font(.title2.bold())
+                .minimumScaleFactor(0.75)
+                .lineLimit(1)
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 102)
+        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func breakdownSection(title: String, rows: [ReportBreakdown]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.headline)
+
+            VStack(spacing: 10) {
+                ForEach(rows.prefix(8)) { row in
+                    HStack(spacing: 12) {
+                        Image(systemName: iconName(for: row.title))
+                            .foregroundStyle(row.amount >= 0 ? .green : .orange)
+                            .frame(width: 24)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(row.title)
+                                .font(.subheadline.weight(.semibold))
+                                .lineLimit(1)
+                            Text("\(row.count) transaction\(row.count == 1 ? "" : "s")")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+
+                        Text(currencyString(row.amount))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(row.amount >= 0 ? .green : .primary)
+                    }
+                    .padding(12)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 8))
                 }
             }
         }
-        .padding(12)
-        .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private var exportSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Button {
+                beginExport()
+            } label: {
+                if isGenerating {
+                    HStack(spacing: 8) {
+                        ProgressView().scaleEffect(0.8)
+                        Text("Generating...")
+                    }
+                    .frame(maxWidth: .infinity)
+                } else {
+                    Label(exportButtonTitle, systemImage: hasExportAccess ? "square.and.arrow.up" : "lock.open")
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .disabled(isGenerating || exportProperties.isEmpty)
+
+            if properties.isEmpty {
+                Text("Add at least one property in Settings first.")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            } else if !hasExportAccess {
+                Text("PDF export is included with RentalKeeper Pro or a one-time Tax Export Pass.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func matchesExportScope(_ transaction: Transaction) -> Bool {
+        switch selectedScope {
+        case .all:
+            return true
+        case .owner:
+            guard !selectedOwnerName.isEmpty else { return true }
+            return transaction.property?.ownerName == selectedOwnerName
+        case .property:
+            guard !selectedPropertyName.isEmpty else { return true }
+            return transaction.property?.name == selectedPropertyName
+        }
+    }
+
+    private var exportButtonTitle: String {
+        hasExportAccess ? "Export Tax PDF" : "Unlock PDF Export"
     }
 
     private var paywallView: some View {
@@ -400,9 +635,29 @@ struct ExportView: View {
         }
     }
 
+    private func iconName(for title: String) -> String {
+        switch title {
+        case "Rent Income": return "dollarsign.circle"
+        case "Utilities": return "bolt"
+        case "Repairs", "Cleaning and Maintenance": return "wrench.and.screwdriver"
+        case "Taxes": return "building.columns"
+        case "Insurance": return "shield"
+        case "Mortgage", "Other Interest": return "house"
+        case "Supplies": return "shippingbox"
+        case "Management Fees", "Legal and Professional Fees": return "briefcase"
+        default: return "tag"
+        }
+    }
+
+    private func currencyString(_ value: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        return formatter.string(from: NSDecimalNumber(decimal: value)) ?? "\(value)"
+    }
+
     private var exportFilename: String {
-        let ownerPart = selectedOwnerName.isEmpty ? "All_Owners" : filenameSafe(selectedOwnerName)
-        return "RentalKeeper_\(ownerPart)_\(selectedYear).pdf"
+        "RentalKeeper_\(exportScopeFilenamePart)_\(selectedYear).pdf"
     }
 
     private func generatePDF() {

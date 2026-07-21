@@ -9,7 +9,7 @@
 /* Begin PBXFileReference section */
 		B328F57B2F8F475700469151 /* LandloardLedger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LandloardLedger.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3F126DD2FD892DC00CEBB44 /* LandLedger.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = LandLedger.storekit; sourceTree = "<group>"; };
-		/* End PBXFileReference section */
+/* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B328F57D2F8F475700469151 /* LandloardLedger */ = {
@@ -47,8 +47,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-
-		/* End PBXGroup section */
+/* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
 		B328F57A2F8F475700469151 /* LandloardLedger */ = {
@@ -268,7 +267,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = rkuo.LandloardLedger;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -300,7 +299,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = rkuo.LandloardLedger;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

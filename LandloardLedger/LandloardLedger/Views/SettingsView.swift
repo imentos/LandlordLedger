@@ -3,9 +3,12 @@ import SwiftData
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @AppStorage("onboardingComplete") private var onboardingComplete = true
     @State private var showImportedResetConfirmation = false
     @State private var showFullResetConfirmation = false
     @State private var resetStatus: String?
+    @State private var debugTapCount = 0
+    @State private var debugModeEnabled = false
 
     var body: some View {
         Form {
@@ -16,24 +19,37 @@ struct SettingsView: View {
             } header: {
                 Text("Categorization")
             } footer: {
-                Text("Transactions are categorized on device using built-in merchant and service-word rules. Uncertain matches go to Inbox for review.")
+                Text("Transactions are categorized on device using built-in merchant and service-word rules. Uncertain matches stay in Transactions for review.")
                     .font(.caption)
             }
 
             Section("About") {
-                LabeledContent("Version", value: appVersion)
+                Button {
+                    registerVersionTap()
+                } label: {
+                    LabeledContent("Version", value: appVersion)
+                }
+                .buttonStyle(.plain)
+
                 LabeledContent("Privacy", value: "No transaction data leaves device")
             }
 
             #if DEBUG
-            Section {
-                Button {
-                    generateScreenshotData()
-                } label: {
-                    Label("Generate Screenshot Data", systemImage: "sparkles")
-                }
+            if debugModeEnabled {
+                Section {
+                    Button {
+                        onboardingComplete = false
+                    } label: {
+                        Label("Show Onboarding Again", systemImage: "arrow.counterclockwise")
+                    }
 
-                Button(role: .destructive) {
+                    Button {
+                        generateScreenshotData()
+                    } label: {
+                        Label("Generate Screenshot Data", systemImage: "sparkles")
+                    }
+
+                    Button(role: .destructive) {
                     showImportedResetConfirmation = true
                 } label: {
                     Label("Reset Imported Data", systemImage: "trash")
@@ -50,11 +66,12 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-            } header: {
-                Text("Debug")
-            } footer: {
-                Text("Generate screenshot data creates a clean demo account. Use reset actions to rerun CSV tests or clear local setup.")
-                    .font(.caption)
+                } header: {
+                    Text("Debug")
+                } footer: {
+                    Text("Generate screenshot data creates a clean demo account. Use reset actions to rerun CSV tests, clear local setup, or replay onboarding.")
+                        .font(.caption)
+                }
             }
             #endif
         }
@@ -87,6 +104,14 @@ struct SettingsView: View {
     }
 
     // MARK: - Helpers
+
+    private func registerVersionTap() {
+        debugTapCount += 1
+        if debugTapCount >= 5 {
+            debugModeEnabled = true
+            resetStatus = "Debug mode enabled."
+        }
+    }
 
     private var appVersion: String {
         let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
@@ -129,19 +154,22 @@ struct SettingsView: View {
                 name: "Maple Ave Duplex",
                 address: "128 Maple Ave",
                 ownerName: "Ray Family Portfolio",
-                keywords: ["maple", "duplex", "128 maple", "ray family", "ray portfolio"]
+                keywords: ["maple", "duplex", "128 maple", "ray family", "ray portfolio"],
+                mortgageAliases: ["Rocket Mortgage", "Rocket Home Loan"]
             )
             let pine = Property(
                 name: "Pine Street Cottage",
                 address: "44 Pine Street",
                 ownerName: "Johnson Family Trust",
-                keywords: ["pine", "cottage", "44 pine", "johnson", "johnson trust"]
+                keywords: ["pine", "cottage", "44 pine", "johnson", "johnson trust"],
+                mortgageAliases: ["Chase Home Lending"]
             )
             let sunset = Property(
                 name: "Sunset Fourplex",
                 address: "810 Sunset Blvd",
                 ownerName: "Wong Properties",
-                keywords: ["sunset", "fourplex", "810 sunset", "wong", "wong properties"]
+                keywords: ["sunset", "fourplex", "810 sunset", "wong", "wong properties"],
+                mortgageAliases: ["Wells Fargo Home Mortgage"]
             )
 
             let sarah = Tenant(name: "Sarah Chen", unit: "Unit A", aliases: ["Sarah Chen"], expectedMonthlyRent: 2400, property: maple)
@@ -172,7 +200,7 @@ struct SettingsView: View {
                 (3, 5, "Zelle payment from Emily Rivera rent", 1650, "Rent Income", sunset, emily),
                 (3, 6, "Zelle payment from Marcus Lee rent", 1725, "Rent Income", sunset, marcus),
                 (3, 12, "Landscaping monthly service", -180, "Cleaning and Maintenance", sunset, nil),
-                (3, 21, "Rocket Mortgage loan interest", -910.33, "Mortgage Interest", maple, nil),
+                (3, 21, "Rocket Mortgage loan interest", -910.33, "Mortgage", maple, nil),
                 (4, 3, "Zelle payment from Sarah Chen rent payment", 2400, "Rent Income", maple, sarah),
                 (4, 4, "ACH credit David Park rent pay", 1850, "Rent Income", pine, david),
                 (4, 5, "Zelle payment from Emily Rivera rent", 1650, "Rent Income", sunset, emily),
@@ -249,9 +277,6 @@ struct SettingsView: View {
     #endif
 
     private func deleteAll<T: PersistentModel>(_ modelType: T.Type) throws {
-        let items = try modelContext.fetch(FetchDescriptor<T>())
-        for item in items {
-            modelContext.delete(item)
-        }
+        try modelContext.delete(model: modelType)
     }
 }

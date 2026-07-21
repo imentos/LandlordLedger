@@ -94,41 +94,47 @@ struct PropertiesView: View {
     }
 
     private func propertyRow(_ property: Property) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 7) {
             Text(property.name)
                 .font(.headline)
+
             if !property.address.isEmpty {
-                Text(property.address)
+                iconText(property.address, systemImage: "mappin.and.ellipse")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            HStack(spacing: 16) {
-                financialChip("Income", value: property.totalIncome, color: .green)
-                financialChip("Expenses", value: property.totalExpenses, color: .red)
-                financialChip("Net", value: property.netIncome, color: property.netIncome >= 0 ? .green : .red)
+            HStack(spacing: 10) {
+                staticChip(tenantCountText(for: property), systemImage: "person.2")
+                if !property.mortgageAliasList.isEmpty {
+                    staticChip("Mortgage", systemImage: "banknote")
+                }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 5)
     }
 
-    private func financialChip(_ label: String, value: Decimal, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 1) {
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-            Text(currencyString(value))
-                .font(.caption.bold())
-                .foregroundStyle(color)
+    private func staticChip(_ title: String, systemImage: String) -> some View {
+        iconText(title, systemImage: systemImage)
+            .font(.caption2.weight(.medium))
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(Color.secondary.opacity(0.10), in: Capsule())
+    }
+
+    private func iconText(_ title: String, systemImage: String) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: systemImage)
+                .imageScale(.small)
+            Text(title)
         }
     }
 
-    private func currencyString(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        formatter.maximumFractionDigits = 0
-        return formatter.string(from: NSDecimalNumber(decimal: value)) ?? "\(value)"
+    private func tenantCountText(for property: Property) -> String {
+        let count = property.tenants.count
+        return "\(count) tenant\(count == 1 ? "" : "s")"
     }
 
     private func deleteProperties(_ offsets: IndexSet, in visibleProperties: [Property]) {
@@ -156,7 +162,8 @@ struct PropertyFormView: View {
     @State private var name       = ""
     @State private var address    = ""
     @State private var ownerName  = ""
-    @State private var keywords   = ""   // comma-separated, e.g. "Elmwood, rent, deposit"
+    @State private var keywords   = ""
+    @State private var mortgageAliases = ""
 
     private var isEditing: Bool {
         if case .edit = mode { return true }
@@ -171,6 +178,7 @@ struct PropertyFormView: View {
                     TextField("Address (optional)", text: $address)
                     TextField("Owner / Portfolio (optional)", text: $ownerName)
                 }
+
                 Section {
                     TextField("Keywords (comma-separated)", text: $keywords)
                         .autocorrectionDisabled()
@@ -178,6 +186,15 @@ struct PropertyFormView: View {
                     Text("Keywords")
                 } footer: {
                     Text("Words in transaction descriptions that help match this property. Example: Elmwood, Apt 2, rental.")
+                        .font(.caption)
+                }
+
+                Section {
+                    TextField("Mortgage / lender aliases", text: $mortgageAliases)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.words)
+                } footer: {
+                    Text("Use bank or lender names from your transaction descriptions. Example: Rocket Mortgage, Chase Home Lending.")
                         .font(.caption)
                 }
             }
@@ -198,15 +215,20 @@ struct PropertyFormView: View {
                     address = property.address
                     ownerName = property.ownerName
                     keywords = property.keywords.joined(separator: ", ")
+                    mortgageAliases = property.mortgageAliasList.joined(separator: ", ")
                 }
             }
         }
     }
 
     private func save() {
-        let kws = keywords
+        let parsedKeywords = keywords
             .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        let parsedMortgageAliases = mortgageAliases
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
 
         switch mode {
@@ -214,13 +236,15 @@ struct PropertyFormView: View {
             let property = Property(name: name.trimmingCharacters(in: .whitespaces),
                                     address: address.trimmingCharacters(in: .whitespaces),
                                     ownerName: ownerName.trimmingCharacters(in: .whitespaces),
-                                    keywords: kws)
+                                    keywords: parsedKeywords,
+                                    mortgageAliases: parsedMortgageAliases)
             modelContext.insert(property)
         case .edit(let property):
-            property.name      = name.trimmingCharacters(in: .whitespaces)
-            property.address   = address.trimmingCharacters(in: .whitespaces)
-            property.ownerName = ownerName.trimmingCharacters(in: .whitespaces)
-            property.keywords  = kws
+            property.name            = name.trimmingCharacters(in: .whitespaces)
+            property.address         = address.trimmingCharacters(in: .whitespaces)
+            property.ownerName       = ownerName.trimmingCharacters(in: .whitespaces)
+            property.keywords        = parsedKeywords
+            property.mortgageAliases = parsedMortgageAliases
         }
 
         try? modelContext.save()

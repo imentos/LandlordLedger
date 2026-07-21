@@ -4,14 +4,9 @@ import SwiftData
 struct ContentView: View {
     var body: some View {
         TabView {
-            ImportView()
+            TransactionsView()
                 .tabItem {
-                    Label("Import", systemImage: "square.and.arrow.down")
-                }
-
-            InboxView()
-                .tabItem {
-                    Label("Inbox", systemImage: "tray")
+                    Label("Transactions", systemImage: "list.bullet.rectangle")
                 }
 
             PropertiesView()
@@ -21,8 +16,15 @@ struct ContentView: View {
 
             ExportView()
                 .tabItem {
-                    Label("Export", systemImage: "doc.text")
+                    Label("Reports", systemImage: "chart.bar")
                 }
+
+            NavigationStack {
+                SettingsView()
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gearshape")
+            }
         }
     }
 }

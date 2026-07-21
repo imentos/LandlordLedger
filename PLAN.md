@@ -71,7 +71,7 @@ Import bank CSV or paste CSV text → local rules categorize → match rent to t
 - Used so corrections work like LandMiles property fixes: link once, remember next time
 
 ### Schedule E Categories (16)
-Rent Income, Advertising, Auto & Travel, Cleaning & Maintenance, Commissions, Insurance, Legal & Professional, Management Fees, Mortgage Interest, Other Interest, Repairs, Supplies, Taxes, Utilities, Depreciation, Other
+Rent Income, Advertising, Auto & Travel, Cleaning & Maintenance, Commissions, Insurance, Legal & Professional, Management Fees, Mortgage, Other Interest, Repairs, Supplies, Taxes, Utilities, Depreciation, Other
 
 ---
 

@@ -8,6 +8,7 @@ final class Property {
     var address: String     // "123 Oak St"
     var ownerName: String = "" // owner, client, or portfolio name
     var keywords: [String]  // ["oak st", "acme plumbing"] — used for v2 accuracy improvement
+    var mortgageAliases: [String]? = nil // lender/payment names used to match mortgage transactions
 
     // MARK: - Relationships
 
@@ -19,11 +20,22 @@ final class Property {
 
     // MARK: - Init
 
-    init(name: String, address: String, ownerName: String = "", keywords: [String] = []) {
-        self.name      = name
-        self.address   = address
-        self.ownerName = ownerName
-        self.keywords  = keywords
+    init(
+        name: String,
+        address: String,
+        ownerName: String = "",
+        keywords: [String] = [],
+        mortgageAliases: [String] = []
+    ) {
+        self.name            = name
+        self.address         = address
+        self.ownerName       = ownerName
+        self.keywords        = keywords
+        self.mortgageAliases = mortgageAliases
+    }
+
+    var mortgageAliasList: [String] {
+        mortgageAliases ?? []
     }
 
     // MARK: - Computed helpers
