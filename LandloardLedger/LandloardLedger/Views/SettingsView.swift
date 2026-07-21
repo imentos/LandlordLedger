@@ -3,38 +3,22 @@ import SwiftData
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.openURL) private var openURL
     @AppStorage("onboardingComplete") private var onboardingComplete = true
     @State private var showImportedResetConfirmation = false
     @State private var showFullResetConfirmation = false
     @State private var resetStatus: String?
     @State private var debugTapCount = 0
-    @State private var debugModeEnabled = false
+    @AppStorage("debugModeEnabled") private var debugModeEnabled = false
 
     var body: some View {
         Form {
-            Section {
-                LabeledContent("Engine", value: "Local Rules")
-                LabeledContent("Confidence Threshold", value: "70%")
-                LabeledContent("Network Required", value: "No")
-            } header: {
-                Text("Categorization")
-            } footer: {
-                Text("Transactions are categorized on device using built-in merchant and service-word rules. Uncertain matches stay in Transactions for review.")
-                    .font(.caption)
-            }
-
             Section("About") {
-                Button {
-                    registerVersionTap()
-                } label: {
-                    LabeledContent("Version", value: appVersion)
-                }
-                .buttonStyle(.plain)
-
-                LabeledContent("Privacy", value: "No transaction data leaves device")
+                versionDebugRow
+                externalLinkRow("Privacy Policy", urlString: "https://imentos.github.io/LandlordLedger/privacy.html")
+                externalLinkRow("Terms of Use", urlString: "https://imentos.github.io/LandlordLedger/terms.html")
             }
 
-            #if DEBUG
             if debugModeEnabled {
                 Section {
                     Button {
@@ -73,7 +57,6 @@ struct SettingsView: View {
                         .font(.caption)
                 }
             }
-            #endif
         }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
@@ -104,6 +87,40 @@ struct SettingsView: View {
     }
 
     // MARK: - Helpers
+
+    private var versionDebugRow: some View {
+        Button {
+            registerVersionTap()
+        } label: {
+            HStack {
+                Text("Version")
+                Spacer()
+                Text(appVersion)
+                    .foregroundStyle(.secondary)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("Tap five times to show debug tools.")
+    }
+
+    private func externalLinkRow(_ title: String, urlString: String) -> some View {
+        Button {
+            if let url = URL(string: urlString) {
+                openURL(url)
+            }
+        } label: {
+            HStack {
+                Text(title)
+                Spacer()
+                Image(systemName: "arrow.up.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
 
     private func registerVersionTap() {
         debugTapCount += 1
@@ -142,7 +159,6 @@ struct SettingsView: View {
         }
     }
 
-    #if DEBUG
     private func generateScreenshotData() {
         do {
             try deleteAll(Transaction.self)
@@ -274,7 +290,6 @@ struct SettingsView: View {
     private func date(month: Int, day: Int) -> Date {
         Calendar.current.date(from: DateComponents(year: 2026, month: month, day: day)) ?? Date()
     }
-    #endif
 
     private func deleteAll<T: PersistentModel>(_ modelType: T.Type) throws {
         try modelContext.delete(model: modelType)
