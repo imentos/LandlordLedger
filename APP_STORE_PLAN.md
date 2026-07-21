@@ -257,3 +257,11 @@ Subscription disclosure checklist for paywall and review:
 6. Internal TestFlight QA.
 7. Create App Store listing metadata.
 8. Submit for review.
+
+## Campaign Links
+
+Landing page App Store campaign URL:
+
+```
+https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=rentalkeeper_landing_page&mt=8
+```
