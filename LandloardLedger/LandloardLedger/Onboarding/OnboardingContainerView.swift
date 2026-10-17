@@ -32,7 +32,7 @@ struct OnboardingContainerView: View {
             // Progress bar (hidden on welcome)
             if coordinator.step != .welcome {
                 ProgressView(value: coordinator.progress)
-                    .tint(Color(hex: "#1B3A5C"))
+                    .tint(Color.blue)
                     .animation(.easeInOut, value: coordinator.progress)
                     .padding(.horizontal)
                     .padding(.top, 8)
@@ -57,5 +57,5 @@ extension Color {
 }
 
 extension Color {
-    static let brand = Color(hex: "#1B3A5C")
+    static let brand = Color.blue
 }

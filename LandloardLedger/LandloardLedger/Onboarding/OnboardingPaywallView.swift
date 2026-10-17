@@ -43,7 +43,7 @@ struct OnboardingPaywallView: View {
                         .font(.title2.bold())
                         .multilineTextAlignment(.center)
 
-                    Text("RentalKeeper is free to use. Unlock tax export\nwhen you're ready to file.")
+                    Text("LandLedger is free to use. Unlock tax export\nwhen you're ready to file.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -115,7 +115,7 @@ struct OnboardingPaywallView: View {
                 .padding(.top, 8)
                 .disabled(isPurchasing)
 
-                Text("RentalKeeper is an organizational tool and does not provide tax, legal, or accounting advice.")
+                Text("LandLedger is an organizational tool and does not provide tax, legal, or accounting advice.")
                     .font(.caption2)
                     .foregroundStyle(Color(.tertiaryLabel))
                     .multilineTextAlignment(.center)
@@ -136,7 +136,7 @@ struct OnboardingPaywallView: View {
         VStack(spacing: 12) {
             fallbackRow(
                 icon: "crown.fill",
-                title: "RentalKeeper Pro",
+                title: "LandLedger Pro",
                 detail: "Import, review, and export all year long",
                 price: "$29.99/year",
                 isPrimary: true

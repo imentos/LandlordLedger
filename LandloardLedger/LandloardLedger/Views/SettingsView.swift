@@ -19,6 +19,14 @@ struct SettingsView: View {
                 externalLinkRow("Terms of Use", urlString: "https://imentos.github.io/LandlordLedger/terms.html")
             }
 
+            Section {
+                externalLinkRow("LandMiles — Property Mileage", urlString: "https://apps.apple.com/app/id6760436282")
+            } header: {
+                Text("More Apps")
+            } footer: {
+                Text("Track property-related mileage with LandMiles, our companion app.")
+            }
+
             if debugModeEnabled {
                 Section {
                     Button {

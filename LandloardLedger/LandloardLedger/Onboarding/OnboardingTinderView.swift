@@ -134,7 +134,7 @@ struct OnboardingTinderView: View {
                 .foregroundStyle(.green)
             Text("We get it.")
                 .font(.title3.bold())
-            Text("Let's show you how RentalKeeper\nfixes all of that.")
+            Text("Let's show you how LandLedger\nfixes all of that.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

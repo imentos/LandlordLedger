@@ -38,7 +38,7 @@ struct OnboardingSolutionView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Here's exactly how\nRentalKeeper fixes that")
+                        Text("Here's exactly how\nLandLedger fixes that")
                             .font(.title2.bold())
                         Text("Everything you flagged, solved.")
                             .font(.subheadline)

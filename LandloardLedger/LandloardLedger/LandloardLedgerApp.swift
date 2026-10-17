@@ -21,6 +21,6 @@ struct LandloardLedgerApp: App {
                 OnboardingContainerView()
             }
         }
-        .modelContainer(for: [Property.self, Tenant.self, Transaction.self, MatchingRule.self])
+        .modelContainer(for: [Property.self, Tenant.self, Transaction.self, TransactionAttachment.self, MatchingRule.self])
     }
 }

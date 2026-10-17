@@ -32,6 +32,9 @@ final class Transaction {
     var property: Property?
     var tenant: Tenant?
 
+    @Relationship(deleteRule: .cascade, inverse: \TransactionAttachment.transaction)
+    var attachments: [TransactionAttachment] = []
+
     // MARK: - Metadata
 
     var importedAt: Date
@@ -79,4 +82,33 @@ final class Transaction {
     // MARK: - Helpers
 
     var isIncome: Bool { category == "Rent Income" }
+}
+
+@Model
+final class TransactionAttachment {
+
+    var id: UUID
+    var fileName: String
+    var storedFileName: String
+    var contentTypeIdentifier: String
+    var fileSize: Int64
+    var createdAt: Date
+    var transaction: Transaction?
+
+    init(
+        fileName: String,
+        storedFileName: String,
+        contentTypeIdentifier: String,
+        fileSize: Int64,
+        createdAt: Date = Date(),
+        transaction: Transaction? = nil
+    ) {
+        self.id = UUID()
+        self.fileName = fileName
+        self.storedFileName = storedFileName
+        self.contentTypeIdentifier = contentTypeIdentifier
+        self.fileSize = fileSize
+        self.createdAt = createdAt
+        self.transaction = transaction
+    }
 }

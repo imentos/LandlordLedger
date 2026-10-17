@@ -2,11 +2,11 @@
 
 ## Positioning
 
-**Working app name:** RentalKeeper
+**Working app name:** LandLedger
 
-**Naming status:** Use `RentalKeeper` as the next App Store listing name candidate. Confirm availability in App Store Connect before the next upload; only App Store Connect can verify final name availability.
+**Naming status:** Use `LandLedger` as the App Store listing name. Confirm availability in App Store Connect before the next upload; only App Store Connect can verify final name availability.
 
-**One-line promise:** Simple rental income and expense tracking for small landlords.
+**One-line promise:** Know what each rental earned—without connecting your bank.
 
 **Primary audience:** Small rental-property owners using iPhone who currently use spreadsheets, Stessa, bank CSV exports, or manual notes to prepare Schedule E tax reports.
 
@@ -14,127 +14,90 @@
 
 ## App Store Metadata
 
-### Title Options
+### App Name
 
-Use `RentalKeeper` as the primary title candidate. Keep fallback options ready in case App Store Connect reports that the name is unavailable.
+**LandLedger** (10 characters). Use this exact name for the listing and installed app to align the brand with LandMiles. Confirm availability in App Store Connect before submission.
 
-1. RentalKeeper (10)
-2. RentalKeeper Rent (15)
-3. RentalKeeper CSV (14)
-4. Property Rent Ledger (20)
-5. Rental Tax Ledger (17)
-6. Small RentalKeeper (21)
-7. Rent Ledger Organizer (21)
-8. Rental Property Books (21)
-9. Landlord CSV Tracker (20)
-10. Property Income Ledger (22)
-11. Rent Expense Ledger (19)
-12. Schedule E Ledger (17)
+### Subtitle
 
-Recommended: **RentalKeeper**
-
-Rationale: `RentalKeeper` is short, brandable, and more directly tied to rentals than the previous name. The subtitle and keywords should carry the functional search terms: landlord, rent, property, tax, CSV, and expense.
-
-Fallback if unavailable: **RentalKeeper Rent**, then **RentalKeeper CSV**, then **Property Rent Ledger**.
-
-### Subtitle Options
-
-Apple subtitle limit is 30 characters. Because the recommended title no longer contains `Landlord`, keep that search term in the subtitle.
-
-1. `Landlord Rent Tracker` (21)
-2. `Property Tax Organizer` (22)
-3. `Income & Expense Tracker` (24)
-4. `Schedule E Organizer` (20)
-
-Recommended: **Landlord Rent Tracker**
+**Landlord Rent & Expense Tracker** (30 characters).
 
 ### Keyword Field
 
-App Store Connect keyword field is limited, so avoid words already in the title/subtitle when possible. With `RentalKeeper` + `Landlord Rent Tracker`, avoid repeating `rental`, `keeper`, `landlord`, `rent`, and `tracker`. Keep `csv` because the title no longer includes it.
-
-Recommended keyword string:
-
 ```text
-property,tax,schedule e,expense,receipt,tenant,zelle,csv,bookkeeping,real estate
+property,tax,schedule e,receipt,tenant,zelle,csv,bookkeeping,real estate,income,rental
 ```
 
-Shorter no-space variant if App Store Connect rejects spaces:
-
-```text
-property,tax,schedulee,expense,receipt,tenant,zelle,csv,bookkeeping,realestate
-```
+This field is 86 ASCII bytes. It complements the name and subtitle without repeating their words. Keywords describe existing features; search-volume performance has not been measured.
 
 ### Name Implementation
 
-Recommended path:
+Use LandLedger for the listing, installed display name, onboarding, paywall, exports, and support pages. Preserve existing bundle IDs, StoreKit product IDs, project names, and hosted support URLs.
 
-1. Try `RentalKeeper` as the App Store name.
-2. If accepted, keep the installed app display name as `RentalKeeper` so the installed app and listing match.
-3. If unavailable, try `RentalKeeper Rent`, then `RentalKeeper CSV`, then `Property Rent Ledger`.
-4. Keep the bundle identifier as-is for now unless App Store Connect requires a new app record. Bundle ID uniqueness is separate from App Store listing-name uniqueness.
-5. Do not rename the Xcode project/target yet; that internal cleanup can wait until after the listing is accepted.
+### Companion App
+
+LandMiles tracks property-related mileage. Link to https://apps.apple.com/app/id6760436282 from Settings and the landing page. These are separate apps; this link does not sync records or share purchases.
+
+Apple metadata references: https://developer.apple.com/app-store/product-page/ and https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information
 
 ### Promotional Text
 
-Track rental income and expenses from Chase CSV imports, review uncertain matches, and export property-ready tax summaries without connecting your bank account.
+Track rent. Organize expenses. Export property reports for your accountant. Import Chase CSV files without connecting your bank account.
 
 ### Short Description
 
-RentalKeeper helps small landlords organize rental property income and expenses from bank CSV files. Import transactions, review uncertain matches, link rent payments to tenants and properties, and export tax-ready summaries for your records.
+Know what each rental earned. LandLedger helps small landlords organize rental income, expenses, and property reports without connecting a bank account.
 
 ### Full Description Draft
 
-RentalKeeper is a simple rental bookkeeping app for small property owners.
+Know what each rental earned—without connecting your bank.
 
-Import bank CSV transactions, categorize income and expenses, review uncertain items in an inbox, and keep each property’s ledger organized for tax season.
+LandLedger helps small landlords turn rental transactions into organized property records. Import a Chase CSV or add transactions manually, review suggested matches, and prepare summaries for your accountant.
 
-Features:
+TRACK RENT AND EXPENSES
+Keep rental income and expenses organized by property. Match rent payments to tenants and see income, expenses, and net income together.
 
-- Import Chase CSV files or paste CSV text
-- Add manual transactions for cash payments or off-bank expenses
-- Auto-categorize common Schedule E categories
-- Match rent payments to tenants and properties
-- Review uncertain transactions in Inbox
-- Learn repeated payees and tenant payment names
-- Track property income, expenses, and net income
-- Export tax-year summaries for your records
-- Works on device without connecting your bank account
+ORGANIZE TRANSACTIONS FASTER
+Import Chase CSV files or paste CSV text. Review uncertain matches in Inbox and save corrections for repeated payees and tenant payment names.
 
-RentalKeeper is designed for owners who want a practical alternative to spreadsheets or expensive rental bookkeeping tools.
+KEEP RECEIPTS WITH YOUR RECORDS
+Attach receipts, invoices, and other supporting files to the matching transaction.
 
-Important: RentalKeeper is an organizational tool and does not provide tax, legal, or accounting advice. Please consult a qualified professional for tax filing decisions.
+EXPORT PROPERTY REPORTS
+Review tax-year summaries and export PDF reports with LandLedger Pro or a one-time Tax Export Pass. Core bookkeeping is free; PDF export requires an in-app purchase.
 
-## Screenshot Plan
+NO BANK LOGIN
+Work with records on your device. LandLedger does not require your bank username or password.
 
-This is an iPhone-only app. Apple allows 1-10 screenshots per device class. Start with 6 portrait screenshots for the highest required iPhone size and let App Store Connect scale where acceptable.
+ALSO FROM US
+Track property-related mileage with our companion app, LandMiles. The apps are available separately.
 
-Recommended screenshots:
+LandLedger is an organizational tool and does not provide tax, legal, or accounting advice. Review records with a qualified professional before filing.
 
-1. **Import CSV Fast**
-   - Show Import screen with Choose Chase CSV and Paste CSV Text.
-   - Caption: `Import bank CSV files`
+Terms of Use: https://imentos.github.io/LandlordLedger/terms.html
+Privacy Policy: https://imentos.github.io/LandlordLedger/privacy.html
 
-2. **Review Inbox**
-   - Show Inbox with a few pending transactions and search.
-   - Caption: `Review uncertain matches`
+## Screenshot Plan — LandMiles Family Style
 
-3. **Fix and Learn**
-   - Show expanded transaction card with property/category chips.
-   - Caption: `Correct once, remember next time`
+Reference: RealEstateMileageTracker/screenshots/final/03-export-irs-reports.png and scripts/generate_app_store_screenshots.py.
 
-4. **Tenants and Units**
-   - Show property detail with unit groups and tenants.
-   - Caption: `Track tenants by unit`
+Use the same teal (#0D5C63), large bold white action headlines, two short supporting lines, and a prominent phone frame. Preserve real LandLedger UI and its bookkeeping-specific content. Existing docs/assets images are previously composed marketing screenshots; obtain raw captures before rebuilding them to avoid nesting captions or phone frames.
 
-5. **Property Ledger**
-   - Show property income/expenses/net summary and monthly transactions.
-   - Caption: `See each property clearly`
+| Order | Headline | Supporting lines | Actual app screen |
+|---|---|---|---|
+| 1 | TRACK | RENT AND / EXPENSES | Transactions with fictional rent and expense entries |
+| 2 | ORGANIZE | RECORDS BY / PROPERTY | Property ledger and income/expense summary |
+| 3 | EXPORT | REPORTS FOR / YOUR ACCOUNTANT | Reports with PDF export control |
+| 4 | REVIEW | SUGGESTED / MATCHES | Inbox showing uncertain categorization |
 
-6. **Tax Export**
-   - Show export screen or generated PDF preview.
-   - Caption: `Export year-end summaries`
+First three screenshots communicate the core workflow, following LandMiles' action-led presentation. Use no guaranteed savings, automatic bank syncing, or tax-filing claims. Verify screenshot sizes against the current App Store upload requirements before submission.
 
-Use sample/fake property and tenant data. Do not use real bank account names, real addresses, or real tenant names in screenshots.
+## Brand Family
+
+LandMiles: property trips and mileage records.
+LandLedger: rental income, expenses, and property reports.
+
+Shared presentation: short Land-prefixed names, property context, bold action headlines, teal marketing backgrounds, and clear report value. Keep each app's icon recognizable; the existing LandLedger icon is retained in this pass. Do not copy LandMiles' car symbol into bookkeeping assets.
 
 ## App Icon Direction
 
@@ -150,7 +113,7 @@ Style:
 
 Palette:
 
-- Deep blue background
+- Teal marketing background (#0D5C63), matching LandMiles screenshot presentation
 - White or off-white ledger/building shape
 - Green accent for income/checkmark
 
@@ -195,7 +158,7 @@ Before submission:
 Suggested review note:
 
 ```text
-RentalKeeper is a local rental bookkeeping app. It does not require login or a bank connection. To test, add a sample property, use the Import tab to add a manual transaction, or import a CSV with columns similar to: Details, Posting Date, Description, Amount, Type, Balance.
+LandLedger is a local rental bookkeeping app. It does not require login or a bank connection. To test, add a sample property, use the Import tab to add a manual transaction, or import a CSV with columns similar to: Details, Posting Date, Description, Amount, Type, Balance.
 ```
 
 ## TestFlight Checklist
@@ -221,14 +184,14 @@ Start simple:
 
 - Free to add properties, import/paste CSV text, review Inbox, and organize transactions.
 - Gate PDF tax export behind StoreKit at the moment the user taps export.
-- Offer `RentalKeeper Pro` as a yearly subscription using product ID `landledger.pro.annual`.
+- Offer `LandLedger Pro` as a yearly subscription using product ID `landledger.pro.annual`.
 - Offer `Tax Export Pass` as a one-time non-consumable using product ID `landledger.tax_export_pass`.
 
 Recommended first App Store release: free workflow with paid tax export. Start with **$29.99/year** for Pro and **$9.99 one-time** for Tax Export Pass.
 
 Subscription disclosure checklist for paywall and review:
 
-- Clearly show what RentalKeeper Pro unlocks before asking for purchase.
+- Clearly show what LandLedger Pro unlocks before asking for purchase.
 - Show price and billing period, for example `$29.99/year`.
 - State that the annual subscription auto-renews unless canceled.
 - Include Restore Purchases.
@@ -241,7 +204,7 @@ Subscription disclosure checklist for paywall and review:
 - Add launch screen polish if needed.
 - Add privacy policy link.
 - Confirm minimum iOS version.
-- Confirm app name spelling: current project uses `LandloardLedger`; App Store listing name should be `RentalKeeper`; installed display name is set to `RentalKeeper` for Debug and Release.
+- Confirm app name spelling: current project uses `LandloardLedger`; App Store listing name should be `LandLedger`; installed display name is set to `LandLedger` for Debug and Release.
 - Confirm App Store device support is iPhone only.
 - Add crash-safe handling for malformed CSV files.
 - Add a short onboarding empty state: add property, import CSV, review Inbox, export.
@@ -263,5 +226,5 @@ Subscription disclosure checklist for paywall and review:
 Landing page App Store campaign URL:
 
 ```
-https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=rentalkeeper_landing_page&mt=8
+https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=landledger_landing_page&mt=8
 ```

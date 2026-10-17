@@ -25,7 +25,7 @@ struct OnboardingSocialProofView: View {
             headline: "Tax time used to ruin my January"
         ),
         Testimonial(
-            quote: "I tried every finance app. They all wanted my bank login. RentalKeeper doesn't. That's why I stayed.",
+            quote: "I tried every finance app. They all wanted my bank login. LandLedger doesn't. That's why I stayed.",
             name: "Sandra L.",
             persona: "Single rental",
             headline: "My bank data stays on my phone"

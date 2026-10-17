@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 import UIKit
+import QuickLook
 
 private struct TransactionMonthOption: Identifiable {
     let startDate: Date
@@ -241,6 +242,7 @@ struct TransactionsView: View {
         if selectedTransaction?.persistentModelID == transaction.persistentModelID {
             selectedTransaction = nil
         }
+        transaction.attachments.forEach { AttachmentFileStore.deleteFile(for: $0) }
         modelContext.delete(transaction)
         try? modelContext.save()
     }
@@ -654,6 +656,10 @@ private struct TransactionListCard: View {
                     chip(transaction.category, systemImage: "tag")
                 }
 
+                if !transaction.attachments.isEmpty {
+                    chip("\(transaction.attachments.count)", systemImage: "paperclip")
+                }
+
                 if needsReview {
                     chip("Needs Review", systemImage: "exclamationmark.circle", tint: .orange)
                 }
@@ -719,6 +725,11 @@ private struct TransactionDetailView: View {
     @State private var selectedPropertyName = ""
     @State private var selectedTenantID: PersistentIdentifier?
     @State private var selectedCategory = ""
+    @State private var showAttachmentImporter = false
+    @State private var attachmentAlertTitle = ""
+    @State private var attachmentAlertMessage = ""
+    @State private var showAttachmentAlert = false
+    @State private var previewAttachmentURL: URL?
 
     private static let categories: [String] = [
         "Rent Income",
@@ -851,9 +862,56 @@ private struct TransactionDetailView: View {
                 }
             }
 
+            Section("Attachments") {
+                if sortedAttachments.isEmpty {
+                    Text("Attach receipts, invoices, statements, photos, or notes for this transaction.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(sortedAttachments) { attachment in
+                        Button {
+                            openAttachment(attachment)
+                        } label: {
+                            attachmentRow(attachment)
+                        }
+                        .foregroundStyle(.primary)
+                    }
+                    .onDelete(perform: deleteAttachments)
+                }
+
+                Button {
+                    showAttachmentImporter = true
+                } label: {
+                    Label("Add Attachment", systemImage: "paperclip")
+                }
+            }
+
         }
         .navigationTitle("Transaction")
         .navigationBarTitleDisplayMode(.inline)
+        .fileImporter(
+            isPresented: $showAttachmentImporter,
+            allowedContentTypes: [.item],
+            allowsMultipleSelection: true
+        ) { result in
+            handleAttachmentImport(result)
+        }
+        .sheet(isPresented: Binding(
+            get: { previewAttachmentURL != nil },
+            set: { isPresented in
+                if !isPresented {
+                    previewAttachmentURL = nil
+                }
+            }
+        )) {
+            if let previewAttachmentURL {
+                AttachmentPreviewView(url: previewAttachmentURL)
+            }
+        }
+        .alert(attachmentAlertTitle, isPresented: $showAttachmentAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(attachmentAlertMessage)
+        }
         .onAppear {
             selectedPropertyName = transaction.property?.name ?? ""
             selectedTenantID = transaction.tenant?.persistentModelID
@@ -863,6 +921,10 @@ private struct TransactionDetailView: View {
 
     private var needsReview: Bool {
         transaction.property == nil
+    }
+
+    private var sortedAttachments: [TransactionAttachment] {
+        transaction.attachments.sorted { $0.createdAt > $1.createdAt }
     }
 
     private var tenantsForSelectedProperty: [Tenant] {
@@ -919,6 +981,97 @@ private struct TransactionDetailView: View {
                 source: transaction.source
             ))
         }
+    }
+
+    private func attachmentRow(_ attachment: TransactionAttachment) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: attachmentIconName(for: attachment))
+                .font(.title3)
+                .foregroundStyle(.tint)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(attachment.fileName)
+                    .font(.subheadline.weight(.medium))
+                    .lineLimit(1)
+                Text("\(fileSizeString(attachment.fileSize)) · \(attachment.createdAt.formatted(date: .abbreviated, time: .omitted))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary)
+        }
+        .contentShape(Rectangle())
+    }
+
+    private func handleAttachmentImport(_ result: Result<[URL], Error>) {
+        do {
+            let urls = try result.get()
+            guard !urls.isEmpty else { return }
+
+            for url in urls {
+                let storedFile = try AttachmentFileStore.copyIntoStore(from: url)
+                let attachment = TransactionAttachment(
+                    fileName: storedFile.fileName,
+                    storedFileName: storedFile.storedFileName,
+                    contentTypeIdentifier: storedFile.contentTypeIdentifier,
+                    fileSize: storedFile.fileSize,
+                    transaction: transaction
+                )
+                transaction.attachments.append(attachment)
+                modelContext.insert(attachment)
+            }
+
+            try modelContext.save()
+        } catch {
+            showAttachmentFeedback(title: "Attachment Failed", message: error.localizedDescription)
+        }
+    }
+
+    private func openAttachment(_ attachment: TransactionAttachment) {
+        do {
+            let fileURL = try AttachmentFileStore.fileURL(for: attachment)
+            guard FileManager.default.fileExists(atPath: fileURL.path) else {
+                showAttachmentFeedback(title: "File Missing", message: "This attachment file could not be found on this device.")
+                return
+            }
+            previewAttachmentURL = fileURL
+        } catch {
+            showAttachmentFeedback(title: "Could Not Open", message: error.localizedDescription)
+        }
+    }
+
+    private func deleteAttachments(at offsets: IndexSet) {
+        for index in offsets {
+            let attachment = sortedAttachments[index]
+            AttachmentFileStore.deleteFile(for: attachment)
+            if let existingIndex = transaction.attachments.firstIndex(where: { $0.persistentModelID == attachment.persistentModelID }) {
+                transaction.attachments.remove(at: existingIndex)
+            }
+            modelContext.delete(attachment)
+        }
+        try? modelContext.save()
+    }
+
+    private func showAttachmentFeedback(title: String, message: String) {
+        attachmentAlertTitle = title
+        attachmentAlertMessage = message
+        showAttachmentAlert = true
+    }
+
+    private func attachmentIconName(for attachment: TransactionAttachment) -> String {
+        if attachment.contentTypeIdentifier.contains("pdf") { return "doc.richtext" }
+        if attachment.contentTypeIdentifier.contains("image") { return "photo" }
+        if attachment.contentTypeIdentifier.contains("spreadsheet") || attachment.fileName.lowercased().hasSuffix(".csv") { return "tablecells" }
+        return "doc"
+    }
+
+    private func fileSizeString(_ bytes: Int64) -> String {
+        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
     }
 
     private func chipButton(title: String, selected: Bool, action: @escaping () -> Void) -> some View {

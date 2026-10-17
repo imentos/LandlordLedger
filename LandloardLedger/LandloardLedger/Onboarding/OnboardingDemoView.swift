@@ -170,7 +170,7 @@ struct OnboardingDemoView: View {
                 .foregroundStyle(.green)
             Text("3 transactions matched")
                 .font(.title3.bold())
-            Text("That's what RentalKeeper does for every import — automatically.")
+            Text("That's what LandLedger does for every import — automatically.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

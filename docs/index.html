@@ -3,27 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RentalKeeper - Rental Property Bookkeeping</title>
-  <meta name="description" content="RentalKeeper helps small landlords import bank CSV transactions, automatically assign them to properties, and export rental tax reports without bank login.">
-  <meta property="og:title" content="RentalKeeper - Rental Property Bookkeeping">
+  <title>LandLedger - Rental Property Bookkeeping</title>
+  <meta name="description" content="LandLedger helps small landlords import bank CSV transactions, automatically assign them to properties, and export rental tax reports without bank login.">
+  <meta property="og:title" content="LandLedger - Rental Property Bookkeeping">
   <meta property="og:description" content="Import CSV transactions, auto-assign rent, expenses, and mortgage payments to properties, then export clean reports for tax season.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/rentalkeeper-app-icon.png">
+  <meta property="og:image" content="assets/landledger-app-icon.png">
   <style>
     :root {
       --ink: #172033;
       --muted: #647084;
       --line: #dce3ee;
-      --paper: #f6f8fb;
+      --paper: #f8faff;
       --panel: #ffffff;
-      --soft: #eaf1fb;
-      --brand: #17446f;
-      --brand-dark: #102f4d;
-      --blue: #1f8cff;
+      --soft: #edf5ff;
+      --brand: #007aff;
+      --brand-dark: #0062cc;
+      --blue: #007aff;
       --green: #28c76f;
       --orange: #ff9f43;
       --white: #ffffff;
-      --shadow: 0 22px 55px rgba(23, 68, 111, 0.16);
+      --shadow: 0 22px 55px rgba(0, 122, 255, 0.10);
     }
 
     * { box-sizing: border-box; }
@@ -75,7 +75,7 @@
       font-size: 15px;
     }
     .nav-links a { text-decoration: none; }
-    .nav-links a:hover { color: var(--brand); }
+    .nav-links a:not(.button):hover { color: var(--brand); }
 
     .button {
       display: inline-flex;
@@ -89,16 +89,16 @@
       color: var(--white);
       font-weight: 800;
       text-decoration: none;
-      box-shadow: 0 12px 24px rgba(23, 68, 111, 0.22);
+      box-shadow: 0 12px 24px rgba(0, 122, 255, 0.18);
     }
-    .button:hover { background: var(--brand-dark); }
+    .button:hover { background: var(--brand-dark); color: var(--white); }
     .button.secondary {
       background: var(--white);
       color: var(--brand);
       border-color: var(--line);
       box-shadow: none;
     }
-    .button.secondary:hover { border-color: var(--brand); }
+    .button.secondary:hover { background: var(--white); color: var(--brand); border-color: var(--brand); }
 
     .hero {
       min-height: calc(100vh - 67px);
@@ -207,10 +207,10 @@
     .summary-box {
       padding: 16px;
       border-radius: 8px;
-      background: var(--brand-dark);
-      color: var(--white);
+      background: var(--soft);
+      color: var(--ink);
     }
-    .summary-box span { display: block; color: rgba(255,255,255,0.72); font-size: 14px; }
+    .summary-box span { display: block; color: var(--muted); font-size: 14px; }
     .summary-box strong { font-size: 34px; }
 
     section { padding: 82px 20px; }
@@ -308,8 +308,8 @@
 
     .quote-band {
       padding: 62px 20px;
-      background: var(--brand-dark);
-      color: var(--white);
+      background: var(--soft);
+      color: var(--ink);
     }
     .quote-band .section-inner {
       display: grid;
@@ -321,7 +321,7 @@
     .quote-band p {
       max-width: 780px;
       margin: 14px 0 0;
-      color: rgba(255,255,255,0.74);
+      color: var(--muted);
       font-size: 18px;
     }
 
@@ -334,8 +334,8 @@
     .final-cta p { max-width: 650px; margin: 0 auto 28px; color: var(--muted); font-size: 18px; }
     .site-footer {
       padding: 36px 20px;
-      background: #101827;
-      color: rgba(255,255,255,0.78);
+      background: var(--soft);
+      color: var(--ink);
     }
     .footer-inner {
       max-width: 1120px;
@@ -380,15 +380,15 @@
 <body>
   <header class="site-header">
     <nav class="nav" aria-label="Main navigation">
-      <a class="brand" href="#top" aria-label="RentalKeeper home">
-        <img src="assets/rentalkeeper-app-icon.png" alt="RentalKeeper app icon">
-        <span>RentalKeeper</span>
+      <a class="brand" href="#top" aria-label="LandLedger home">
+        <img src="assets/landledger-app-icon.png" alt="LandLedger app icon">
+        <span>LandLedger</span>
       </a>
       <div class="nav-links">
         <a href="#auto-assign">Auto-assign</a>
         <a href="#screenshots">Screenshots</a>
         <a href="#faq">FAQ</a>
-        <a class="button" href="https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=rentalkeeper_landing_page&mt=8">Download</a>
+        <a class="button" href="https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=landledger_landing_page&mt=8">Download</a>
       </div>
     </nav>
   </header>
@@ -399,23 +399,23 @@
         <div>
           <div class="eyebrow">Rental bookkeeping for small landlords</div>
           <h1>Turn bank CSVs into property-ready rent records.</h1>
-          <p class="hero-copy">RentalKeeper imports transactions, automatically assigns rent, expenses, and mortgage payments to properties, then helps you export clean reports for tax season.</p>
+          <p class="hero-copy">LandLedger imports transactions, automatically assigns rent, expenses, and mortgage payments to properties, then helps you export clean reports for tax season.</p>
           <div class="hero-actions">
-            <a class="button" href="https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=rentalkeeper_landing_page&mt=8">Download on the App Store</a>
+            <a class="button" href="https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=landledger_landing_page&mt=8">Download on the App Store</a>
             <a class="button secondary" href="#auto-assign">See auto-assign rules</a>
           </div>
-          <div class="proof-row" aria-label="RentalKeeper highlights">
+          <div class="proof-row" aria-label="LandLedger highlights">
             <span>No bank login</span>
             <span>Local matching rules</span>
             <span>Property and owner reports</span>
           </div>
         </div>
 
-        <aside class="app-panel" aria-label="RentalKeeper auto-assignment preview">
+        <aside class="app-panel" aria-label="LandLedger auto-assignment preview">
           <div class="app-top">
-            <img src="assets/rentalkeeper-app-icon.png" alt="">
+            <img src="assets/landledger-app-icon.png" alt="">
             <div>
-              <strong>RentalKeeper</strong>
+              <strong>LandLedger</strong>
               <span>July transactions</span>
             </div>
           </div>
@@ -455,7 +455,7 @@
       <div class="section-inner">
         <div class="section-head center">
           <h2>Built for landlords who do not want another spreadsheet.</h2>
-          <p>Rental bookkeeping usually breaks when rent payments, repairs, utilities, and mortgage payments are scattered across bank statements. RentalKeeper keeps the workflow small enough for an iPhone.</p>
+          <p>Rental bookkeeping usually breaks when rent payments, repairs, utilities, and mortgage payments are scattered across bank statements. LandLedger keeps the workflow small enough for an iPhone.</p>
         </div>
         <div class="grid-3">
           <article class="tile">
@@ -481,7 +481,7 @@
       <div class="section-inner">
         <div class="section-head">
           <h2>Auto-assign transactions to the right property.</h2>
-          <p>RentalKeeper uses local rules on your phone to match imported transactions. Uncertain items stay visible for review instead of disappearing into a black box.</p>
+          <p>LandLedger uses local rules on your phone to match imported transactions. Uncertain items stay visible for review instead of disappearing into a black box.</p>
         </div>
         <div class="grid-4">
           <article class="tile">
@@ -492,7 +492,7 @@
           <article class="tile">
             <div class="icon">2</div>
             <h3>Expected rent</h3>
-            <p>If one tenant has a matching monthly rent amount, RentalKeeper can suggest that tenant and property.</p>
+            <p>If one tenant has a matching monthly rent amount, LandLedger can suggest that tenant and property.</p>
           </article>
           <article class="tile">
             <div class="icon">3</div>
@@ -516,22 +516,22 @@
         </div>
         <div class="screens">
           <article class="screen-card">
-            <img src="assets/rentalkeeper-track.png" alt="RentalKeeper transactions screen">
+            <img src="assets/landledger-track.png" alt="LandLedger transactions screen">
             <h3>Track monthly transactions</h3>
             <p>Review each month by property.</p>
           </article>
           <article class="screen-card">
-            <img src="assets/rentalkeeper-match.png" alt="RentalKeeper matching screen">
+            <img src="assets/landledger-match.png" alt="LandLedger matching screen">
             <h3>Auto-assign transactions</h3>
             <p>Match rent, property keywords, and mortgage aliases.</p>
           </article>
           <article class="screen-card">
-            <img src="assets/rentalkeeper-review.png" alt="RentalKeeper property review screen">
+            <img src="assets/landledger-review.png" alt="LandLedger property review screen">
             <h3>Review only what needs attention</h3>
             <p>Fix uncertain transactions in context.</p>
           </article>
           <article class="screen-card">
-            <img src="assets/rentalkeeper-reports.png" alt="RentalKeeper reports screen">
+            <img src="assets/landledger-reports.png" alt="LandLedger reports screen">
             <h3>Export reports</h3>
             <p>See totals before creating PDFs.</p>
           </article>
@@ -569,9 +569,9 @@
       <div class="section-inner">
         <div>
           <h2>No bank login. No cloud accounting setup. Just your rental records, organized.</h2>
-          <p>RentalKeeper is built for small landlords who want practical bookkeeping and tax-time summaries without a heavy accounting suite.</p>
+          <p>LandLedger is built for small landlords who want practical bookkeeping and tax-time summaries without a heavy accounting suite.</p>
         </div>
-        <a class="button" href="https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=rentalkeeper_landing_page&mt=8">Get RentalKeeper</a>
+        <a class="button" href="https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=landledger_landing_page&mt=8">Get LandLedger</a>
       </div>
     </section>
 
@@ -582,8 +582,8 @@
         </div>
         <div class="faq">
           <details open>
-            <summary>Does RentalKeeper connect to my bank?</summary>
-            <p>No. RentalKeeper does not require bank login. You import CSV files or paste CSV text when you want to add transactions.</p>
+            <summary>Does LandLedger connect to my bank?</summary>
+            <p>No. LandLedger does not require bank login. You import CSV files or paste CSV text when you want to add transactions.</p>
           </details>
           <details>
             <summary>Which transactions can be auto-assigned?</summary>
@@ -595,7 +595,7 @@
           </details>
           <details>
             <summary>Is this tax advice?</summary>
-            <p>No. RentalKeeper is an organizational tool. Review all records with your tax, legal, or accounting professional before filing.</p>
+            <p>No. LandLedger is an organizational tool. Review all records with your tax, legal, or accounting professional before filing.</p>
           </details>
         </div>
       </div>
@@ -604,15 +604,15 @@
     <section id="download" class="final-cta">
       <div class="section-inner">
         <h2>Import your next rental statement with less cleanup.</h2>
-        <p>Start with properties and tenants, import a CSV, then let RentalKeeper auto-assign the obvious matches.</p>
-        <a class="button" href="https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=rentalkeeper_landing_page&mt=8" aria-label="Download RentalKeeper on the App Store">Download on the App Store</a>
+        <p>Start with properties and tenants, import a CSV, then let LandLedger auto-assign the obvious matches.</p>
+        <a class="button" href="https://apps.apple.com/app/apple-store/id6769927934?pt=117813104&ct=landledger_landing_page&mt=8" aria-label="Download LandLedger on the App Store">Download on the App Store</a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="footer-inner">
-      <div>© 2026 RentalKeeper. Rental bookkeeping for small landlords.</div>
+      <div>© 2026 LandLedger. Rental bookkeeping for small landlords.</div>
       <div class="footer-links">
         <a href="privacy.html">Privacy Policy</a>
         <a href="terms.html">Terms</a>

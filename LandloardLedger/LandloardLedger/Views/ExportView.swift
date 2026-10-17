@@ -400,7 +400,7 @@ struct ExportView: View {
                     .font(.caption)
                     .foregroundStyle(.orange)
             } else if !hasExportAccess {
-                Text("PDF export is included with RentalKeeper Pro or a one-time Tax Export Pass.")
+                Text("PDF export is included with LandLedger Pro or a one-time Tax Export Pass.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -476,13 +476,13 @@ struct ExportView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .disabled(isPurchasing)
 
-                    Text("RentalKeeper is an organizational tool and does not provide tax, legal, or accounting advice.")
+                    Text("LandLedger is an organizational tool and does not provide tax, legal, or accounting advice.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .padding()
             }
-            .navigationTitle("RentalKeeper")
+            .navigationTitle("LandLedger")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -657,7 +657,7 @@ struct ExportView: View {
     }
 
     private var exportFilename: String {
-        "RentalKeeper_\(exportScopeFilenamePart)_\(selectedYear).pdf"
+        "LandLedger_\(exportScopeFilenamePart)_\(selectedYear).pdf"
     }
 
     private func generatePDF() {
